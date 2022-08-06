@@ -23,13 +23,11 @@ import java.util.Set;
         @Index(columnList = "createdAt"),
         @Index(columnList = "createdBy")
 })
-@EntityListeners(AuditingEntityListener.class)
 @Entity
-public class Article {
+public class Article extends AuditingFields {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
 
     @Setter
     @Column(nullable = false)
@@ -47,23 +45,6 @@ public class Article {
     @OrderBy("id")
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL)
     private final Set<ArticleComment> articleComments = new LinkedHashSet<>();
-
-    // 상식적으로 Jpa Auditing 은 not null
-    @CreatedDate
-    @Column(nullable = false)
-    private LocalDateTime createdAt;  // 생성일시
-
-    @CreatedBy
-    @Column(nullable = false)
-    private String createdBy;  // 생성자
-
-    @LastModifiedDate
-    @Column(nullable = false)
-    private LocalDateTime modifiedAt;  // 수정일시
-
-    @LastModifiedBy
-    @Column(nullable = false)
-    private String modifiedBy;  // 수정자
 
     // public, protected no-arg constructor -> entity
     protected Article() {
