@@ -27,13 +27,11 @@ spring:
     properties:
       hibernate.format_sql: true
       hibernate.default_batch_fetch_size: 100 # N + 1 문제 해결 bulk query
-
-  sql.init.mode: always   # data.sql 언제 작동 시킬것인가? ALWAYS, NEVER, EMBEDDED(임베디드 디비로 사용될 때만: TEST)
   #  thymeleaf.cache: false
-  #  data:
-  #    rest:
-  #      base-path: /api
-  #      detection-strategy: annotated
+  sql.init.mode: always   # data.sql 언제 작동 시킬것인가? ALWAYS, NEVER, EMBEDDED(임베디드 디비로 사용될 때만: TEST)
+  data.rest:
+      base-path: /api
+      detection-strategy: annotated
   # h2.console.enabled: true
 
 
