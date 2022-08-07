@@ -27,15 +27,17 @@ spring:
     properties:
       hibernate.format_sql: true
       hibernate.default_batch_fetch_size: 100 # N + 1 문제 해결 bulk query
-  #  thymeleaf.cache: false
   sql.init.mode: always   # data.sql 언제 작동 시킬것인가? ALWAYS, NEVER, EMBEDDED(임베디드 디비로 사용될 때만: TEST)
   data.rest:
       base-path: /api
       detection-strategy: annotated
+  thymeleaf3.decoupled-logic: true
+
   # h2.console.enabled: true
+  #  thymeleaf.cache: false
 
-
-  # 특정 profile yaml 파일 시작
   output:
     ansi:
       enabled: always
+
+  # 특정 profile yaml 파일 시작 ---
