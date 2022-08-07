@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<thlogic>
+    <!-- 경로 :: tag element, #id, .class-->
+    <attr sel="#header" th:replace="header :: header"/>
+    <attr sel="#footer" th:replace="footer :: footer"/>
+</thlogic>
