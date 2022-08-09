@@ -10,7 +10,7 @@ import java.util.Objects;
 import java.util.Set;
 
 @Getter
-@ToString
+@ToString(callSuper = true)
 @Table(indexes = {
         @Index(columnList = "title"),
         @Index(columnList = "hashtag"),
@@ -22,6 +22,11 @@ public class Article extends AuditingFields {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Setter
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id")
+    private User user;  // 유저 정보(ID)
 
     @Setter
     @Column(nullable = false)
@@ -36,7 +41,7 @@ public class Article extends AuditingFields {
 
     // mappedBy 를 걸지 않으면 두 entity 이름을 합쳐서 테이블을 하나 만듬
     @ToString.Exclude
-    @OrderBy("id")
+    @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL)
     private final Set<ArticleComment> articleComments = new LinkedHashSet<>();
 
@@ -44,15 +49,16 @@ public class Article extends AuditingFields {
     protected Article() {
     }
 
-    private Article(String title, String content, String hashtag) {
+    private Article(User user, String title, String content, String hashtag) {
+        this.user = user;
         this.title = title;
         this.content = content;
         this.hashtag = hashtag;
     }
 
     // factory method
-    public static Article of(String title, String content, String hashtag) {
-        return new Article(title, content, hashtag);
+    public static Article of(User user, String title, String content, String hashtag) {
+        return new Article(user, title, content, hashtag);
     }
 
     @Override
@@ -67,4 +73,5 @@ public class Article extends AuditingFields {
     public int hashCode() {
         return Objects.hash(id);
     }
+
 }
