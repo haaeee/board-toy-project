@@ -25,19 +25,25 @@ public class ArticleComment extends AuditingFields {
     private Article article;  // 게시글 (id)
 
     @Setter
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id")
+    private User user; // 유저 정보 (ID)
+
+    @Setter
     @Column(nullable = false, length = 500)
     private String content;  // 본문
 
     protected ArticleComment() {
     }
 
-    private ArticleComment(Article article, String content) {
+    private ArticleComment(Article article, User user, String content) {
         this.article = article;
+        this.user = user;
         this.content = content;
     }
 
-    public static ArticleComment of(Article article, String content) {
-        return new ArticleComment(article, content);
+    public static ArticleComment of(Article article, User user, String content) {
+        return new ArticleComment(article, user, content);
     }
 
     @Override
