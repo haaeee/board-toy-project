@@ -1,7 +1,7 @@
 -- 테스트 계정
 -- TODO: 테스트용이지만 비밀번호가 노출된 데이터 세팅. 개선하는 것이 좋을 것 같다.
 insert into users (email, user_password, nickname, memo, created_at, created_by, modified_at, modified_by) values
-    ('jm@gmail.com', 'asdf1234!@#$', 'jmjmjames', 'Hello! I am Jm.', now(), 'jm', now(), 'jm')
+    ('jm@email.com', 'asdf1234!@#$', 'jmjmjames', 'Hello! I am Jm.', now(), 'jm', now(), 'jm')
 ;
 
 -- 119 개의 게시글
