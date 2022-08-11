@@ -1,6 +1,10 @@
 package com.example.boardproject.controller;
 
+import com.example.boardproject.domain.Article;
+import com.example.boardproject.domain.User;
 import com.example.boardproject.domain.type.SearchType;
+import com.example.boardproject.dto.ArticleCommentDto;
+import com.example.boardproject.dto.UserDto;
 import com.example.boardproject.dto.response.ArticleResponse;
 import com.example.boardproject.dto.response.ArticleWithCommentsResponse;
 import com.example.boardproject.service.ArticleService;
@@ -39,7 +43,7 @@ public class ArticleController {
 
         model.addAttribute("articles", articles);
         model.addAttribute("paginationBarNumbers", barNumbers);
-        model.addAttribute("searchTypes", List.of());  // TODO: Enum에서 담아와야 함
+        model.addAttribute("searchTypes", SearchType.values());
 
         return "articles/index";
     }
