@@ -11,8 +11,8 @@ import java.util.Objects;
 @Getter
 @ToString
 @Table(name = "users", indexes = {
-        @Index(columnList = "user_id"),
         @Index(columnList = "email", unique = true),
+        @Index(columnList = "nickname", unique = true),
         @Index(columnList = "createdAt"),
         @Index(columnList = "createdBy")
 })
