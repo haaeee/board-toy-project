@@ -1,6 +1,7 @@
 package com.example.boardproject.controller;
 
 import com.example.boardproject.config.SecurityConfig;
+import com.example.boardproject.domain.type.SearchType;
 import com.example.boardproject.dto.ArticleWithCommentsDto;
 import com.example.boardproject.dto.UserDto;
 import com.example.boardproject.service.ArticleService;
@@ -32,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * 48 : 슬라이스 테스트에서는 생성자를 통한 주입이여도 @Autowired 해줘야함(WebMvcTest에 ExtendWith가 생성자 주입을 도움)
  * 즉, spring 이 생성자 주입할 때도 저절로 해주는 것
  * 50 : 인자 3개중에 하나만 Matcher를 쓰지 못 한다. (Invalid use of argument matchers!)
- * 57 : anyInt: any() null 값 허용
+ * 57 : anyInt: any()는 null 값 허용
  */
 @DisplayName("View 컨트롤러 - 게시글")
 @Import(SecurityConfig.class)
@@ -70,9 +71,34 @@ class ArticleControllerTest {
         then(paginationService).should().getPaginationBarNumbers(anyInt(), anyInt());
     }
 
+    @DisplayName("[view][GET] 게시글 리스트 (게시판) 페이지 - 검색어와 함께 호출")
+    @Test
+    public void givenSearchKeyWord_whenSearchingArticlesView_thenReturnsArticlesView() throws Exception {
+        // Given
+        SearchType searchType = SearchType.TITLE;
+        String searchValue = "title";
+        given(articleService.searchArticles(eq(searchType), eq(searchValue), any(Pageable.class))).willReturn(Page.empty());
+        given(paginationService.getPaginationBarNumbers(anyInt(), anyInt())).willReturn(List.of(0, 1, 2, 3, 4));
+
+        // When & Then
+        mvc.perform(
+                get("/articles")
+                        .queryParam("searchType", searchType.name())
+                        .queryParam("searchValue", searchValue)
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
+                .andExpect(view().name("articles/index"))
+                .andExpect(model().attributeExists("articles"))
+                .andExpect(model().attributeExists("searchTypes"))  // 어떤 searchType 존재하는 view에게 줘야함(프론트에서 작업)
+                .andExpect(model().attributeExists("paginationBarNumbers") );
+        then(articleService).should().searchArticles(eq(searchType), eq(searchValue), any(Pageable.class));
+        then(paginationService).should().getPaginationBarNumbers(anyInt(), anyInt());
+    }
+
     @DisplayName("[view][GET] 게시글 리스트 (게시판) 페이지 - 페이징, 정렬 정상 작동")
     @Test
-    void givenPagingAndSortingParams_whenSearchingArticlesPage_thenReturnsArticlesPage() throws Exception {
+    void givenPagingAndSortingParams_whenSearchingArticlesView_thenReturnsArticlesView() throws Exception {
         // Given
         String sortName = "title";
         String direction = "desc";
