@@ -60,7 +60,7 @@ public class ArticleService {
             }
             article.setHashtag(dto.hashtag());
         } catch (EntityNotFoundException e) {
-            log.warn("게시글을 찾을 수 없습니다. - dto: {}", dto);
+            log.warn("게시글 업데이트 실패. 게시글을 찾을 수 없습니다. - dto: {}", dto);
         }
     }
 
