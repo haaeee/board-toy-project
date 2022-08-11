@@ -37,6 +37,3 @@ spring:
 
 
   # 특정 profile yaml 파일 시작
-  output:
-    ansi:
-      enabled: always
