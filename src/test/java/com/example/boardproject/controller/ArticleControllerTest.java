@@ -1,11 +1,16 @@
 package com.example.boardproject.controller;
 
 import com.example.boardproject.config.SecurityConfig;
-import com.example.boardproject.domain.type.SearchType;
+import com.example.boardproject.domain.constant.FormStatus;
+import com.example.boardproject.domain.constant.SearchType;
+import com.example.boardproject.dto.ArticleDto;
 import com.example.boardproject.dto.ArticleWithCommentsDto;
 import com.example.boardproject.dto.UserDto;
+import com.example.boardproject.dto.request.ArticleRequest;
+import com.example.boardproject.dto.response.ArticleResponse;
 import com.example.boardproject.service.ArticleService;
 import com.example.boardproject.service.PaginationService;
+import com.example.boardproject.util.FormDataEncoder;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,22 +30,26 @@ import java.util.List;
 import java.util.Set;
 
 import static org.mockito.BDDMockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * 42 : MockBean annotation의 Target은 Type, Field 생성자 주입 안됨
- * 48 : 슬라이스 테스트에서는 생성자를 통한 주입이여도 @Autowired 해줘야함(WebMvcTest에 ExtendWith가 생성자 주입을 도움)
+ * MockBean annotation의 Target은 Type, Field 생성자 주입 안됨
+ * 슬라이스 테스트에서는 생성자를 통한 주입이여도 @Autowired 해줘야함(WebMvcTest에 ExtendWith가 생성자 주입을 도움)
  * 즉, spring 이 생성자 주입할 때도 저절로 해주는 것
- * 50 : 인자 3개중에 하나만 Matcher를 쓰지 못 한다. (Invalid use of argument matchers!)
- * 57 : anyInt: any()는 null 값 허용
+ * 인자 3개중에 하나만 Matcher를 쓰지 못 한다. (Invalid use of argument matchers!)
+ * anyInt: any()는 null 값 허용
+ * MediaType.APPLICATION_FORM_URLENCODED: post test -> parameter 로 test 하였기에
  */
 @DisplayName("View 컨트롤러 - 게시글")
-@Import(SecurityConfig.class)
+@Import({SecurityConfig.class, FormDataEncoder.class})
 @WebMvcTest(ArticleController.class)
 class ArticleControllerTest {
 
     private final MockMvc mvc;
+    private final FormDataEncoder formDataEncoder;
 
     @MockBean
     private ArticleService articleService;
@@ -48,8 +57,10 @@ class ArticleControllerTest {
     @MockBean
     private PaginationService paginationService;
 
-    public ArticleControllerTest(@Autowired MockMvc mvc) {
+    public ArticleControllerTest(@Autowired MockMvc mvc,
+                                 @Autowired FormDataEncoder formDataEncoder) {
         this.mvc = mvc;
+        this.formDataEncoder = formDataEncoder;
     }
 
     @DisplayName("[view][GET] 게시글 리스트 (게시판) 페이지 - 정상 호출")
@@ -85,7 +96,7 @@ class ArticleControllerTest {
                 get("/articles")
                         .queryParam("searchType", searchType.name())
                         .queryParam("searchValue", searchValue)
-                )
+        )
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
                 .andExpect(view().name("articles/index"))
@@ -116,7 +127,7 @@ class ArticleControllerTest {
                         .queryParam("page", String.valueOf(pageNumber))
                         .queryParam("size", String.valueOf(pageSize))
                         .queryParam("sort", sortName + "," + direction)
-                )
+        )
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
                 .andExpect(view().name("articles/index"))
@@ -134,7 +145,7 @@ class ArticleControllerTest {
         // Given
         long articleId = 1L;
         long totalCount = 1L;
-        given(articleService.getArticle(articleId)).willReturn(createArticleWithCommentsDto());
+        given(articleService.getArticleWithComments(articleId)).willReturn(createArticleWithCommentsDto());
         given(articleService.getArticleCount()).willReturn(totalCount);
 
         // When & Then
@@ -145,7 +156,7 @@ class ArticleControllerTest {
                 .andExpect(model().attributeExists("article"))
                 .andExpect(model().attributeExists("articleComments"))
                 .andExpect(model().attribute("totalCount", totalCount));
-        then(articleService).should().getArticle(articleId);
+        then(articleService).should().getArticleWithComments(articleId);
         then(articleService).should().getArticleCount();
     }
 
@@ -198,7 +209,7 @@ class ArticleControllerTest {
         mvc.perform(
                 get("/articles/search-hashtag")
                         .queryParam("searchValue", hashtag)
-                )
+        )
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
                 .andExpect(view().name("articles/search-hashtag"))
@@ -209,6 +220,107 @@ class ArticleControllerTest {
         then(articleService).should().searchArticlesViaHashTag(eq(hashtag), any(Pageable.class));
         then(articleService).should().getHashtags();
         then(paginationService).should().getPaginationBarNumbers(anyInt(), anyInt());
+    }
+
+    @DisplayName("[view][GET] 새 게시글 작성 페이지")
+    @Test
+    void givenNothing_whenRequesting_thenReturnsNewArticlePage() throws Exception {
+        // Given
+
+        // When & Then
+        mvc.perform(get("/articles/form"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
+                .andExpect(view().name("articles/form"))
+                .andExpect(model().attribute("formStatus", FormStatus.CREATE));
+    }
+
+    @DisplayName("[view][POST] 새 게시글 등록 - 정상 호출")
+    @Test
+    void givenNewArticleInfo_whenRequesting_thenSavesNewArticle() throws Exception {
+        // Given
+        ArticleRequest articleRequest = ArticleRequest.of("new Title", "new Content", "#new");
+        willDoNothing().given(articleService).saveArticle(any(ArticleDto.class));
+
+        // When
+        mvc.perform(
+                post("/articles/form")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .content(formDataEncoder.encode(articleRequest))
+                        .with(csrf())
+        )
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/articles"))
+                .andExpect(redirectedUrl("/articles"));
+        // Then
+        then(articleService).should().saveArticle(any(ArticleDto.class));
+    }
+
+    @DisplayName("[view][GET] 게시글 수정 페이지")
+    @Test
+    void givenNothing_whenRequesting_thenReturnsArticleUpdatePage() throws Exception {
+        // Given
+        Long articleId = 1L;
+        ArticleDto dto = createArticleDto();
+        given(articleService.getArticle(articleId)).willReturn(dto);
+
+        // When & Then
+        mvc.perform(get("/articles/" + articleId + "/form"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
+                .andExpect(view().name("articles/form"))
+                .andExpect(model().attribute("article", ArticleResponse.from(dto)))
+                .andExpect(model().attribute("formStatus", FormStatus.UPDATE));
+        then(articleService).should().getArticle(articleId);
+    }
+
+    @DisplayName("[view][POST] 게시글 수정 - 정상 호출")
+    @Test
+    void givenUpdatedArticleInfo_whenRequesting_thenUpdatesNewArticle() throws Exception {
+        // Given
+        Long articleId = 1L;
+        ArticleRequest articleRequest = ArticleRequest.of("new Title", "new Content", "#new");
+        willDoNothing().given(articleService).updateArticle(eq(articleId), any(ArticleDto.class));
+
+        // When & Then
+        mvc.perform(
+                post("/articles/" + articleId + "/form")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .content(formDataEncoder.encode(articleRequest))
+                        .with(csrf())
+        )
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/articles/" + articleId))
+                .andExpect(redirectedUrl("/articles/" + articleId));
+        then(articleService).should().updateArticle(eq(articleId), any(ArticleDto.class));
+    }
+
+    @DisplayName("[view][POST] 게시글 삭제 - 정상 호출")
+    @Test
+    void givenArticleIdToDelete_whenRequesting_thenDeletesArticle() throws Exception {
+        // Given
+        long articleId = 1L;
+        willDoNothing().given(articleService).deleteArticle(articleId);
+
+        // When & Then
+        mvc.perform(
+                post("/articles/" + articleId + "/delete")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .with(csrf())
+        )
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/articles"))
+                .andExpect(redirectedUrl("/articles"));
+        then(articleService).should().deleteArticle(articleId);
+    }
+
+    private ArticleDto createArticleDto() {
+        return ArticleDto.of(
+                createUserDto(),
+                "title",
+                "content",
+                "#java"
+        );
     }
 
     private ArticleWithCommentsDto createArticleWithCommentsDto() {

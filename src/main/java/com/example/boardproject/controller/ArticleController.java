@@ -1,6 +1,9 @@
 package com.example.boardproject.controller;
 
-import com.example.boardproject.domain.type.SearchType;
+import com.example.boardproject.domain.constant.FormStatus;
+import com.example.boardproject.domain.constant.SearchType;
+import com.example.boardproject.dto.UserDto;
+import com.example.boardproject.dto.request.ArticleRequest;
 import com.example.boardproject.dto.response.ArticleResponse;
 import com.example.boardproject.dto.response.ArticleWithCommentsResponse;
 import com.example.boardproject.service.ArticleService;
@@ -12,10 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -46,7 +46,7 @@ public class ArticleController {
 
     @GetMapping("/{articleId}")
     public String article(@PathVariable Long articleId, Model model) {
-        ArticleWithCommentsResponse article = ArticleWithCommentsResponse.from(articleService.getArticle(articleId));
+        ArticleWithCommentsResponse article = ArticleWithCommentsResponse.from(articleService.getArticleWithComments(articleId));
 
         model.addAttribute("article", article);
         model.addAttribute("articleComments", article.articleCommentResponse());
@@ -56,7 +56,7 @@ public class ArticleController {
     }
 
     @GetMapping("/search-hashtag")
-    public String searchHashtag(
+    public String searchArticleHashtag(
             @RequestParam(required = false) String searchValue,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
             Model model
@@ -71,4 +71,50 @@ public class ArticleController {
 
         return "articles/search-hashtag";
     }
+
+    @GetMapping("/form")
+    public String articleForm(Model model) {
+        model.addAttribute("formStatus", FormStatus.CREATE);
+
+        return "articles/form";
+    }
+
+    @PostMapping("/form")
+    public String postNewArticle(ArticleRequest articleRequest) {
+        // TODO: 인증 정보를 넣어줘야 한다.
+        articleService.saveArticle(articleRequest.toDto(UserDto.of(
+                        "jmjm@email.com", "jm1234!@#$%", "muzik", "This is memo"
+        )));
+
+        return "redirect:/articles";
+    }
+
+    @GetMapping("/{articleId}/form")
+    public String updateArticleForm(@PathVariable Long articleId, Model model) {
+        ArticleResponse article = ArticleResponse.from(articleService.getArticle(articleId));
+
+        model.addAttribute("article", article);
+        model.addAttribute("formStatus", FormStatus.UPDATE);
+
+        return "articles/form";
+    }
+
+    @PostMapping ("/{articleId}/form")
+    public String updateArticle(@PathVariable Long articleId, ArticleRequest articleRequest) {
+        // TODO: 인증 정보를 넣어줘야 한다.
+        articleService.updateArticle(articleId, articleRequest.toDto(UserDto.of(
+                "jmjm@email.com", "jm1234!@#$%", "muzik", "This is memo"
+        )));
+
+        return "redirect:/articles/" + articleId;
+    }
+
+    @PostMapping ("/{articleId}/delete")
+    public String deleteArticle(@PathVariable Long articleId) {
+        // TODO: 인증 정보를 넣어줘야 한다.
+        articleService.deleteArticle(articleId);
+
+        return "redirect:/articles";
+    }
+
 }

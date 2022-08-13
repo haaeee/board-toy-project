@@ -6,6 +6,7 @@
   <attr sel="#footer" th:replace="footer :: footer"/>
 
   <attr sel="main" th:object="${articles}">
+    <attr sel="#search-form" th:action="@{/articles}" th:method="get" />
     <attr sel="#search-type" th:remove="all-but-first">
       <!--param: searchType을 꺼내온 것(직전까지의 검색 url)-->
       <!--searchType.name: searchType 태그 클래스의 name-->
@@ -57,6 +58,8 @@
         </attr>
       </attr>
     </attr>
+
+    <attr sel="#write-article" th:href="@{/articles/form}" />
 
     <attr sel="#pagination">
       <attr sel="li[0]/a"
