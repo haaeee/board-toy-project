@@ -3,6 +3,7 @@ package com.example.boardproject.dto;
 
 import com.example.boardproject.domain.Article;
 import com.example.boardproject.domain.ArticleComment;
+import com.example.boardproject.domain.User;
 
 import java.time.LocalDateTime;
 
@@ -16,6 +17,10 @@ public record ArticleCommentDto(
         LocalDateTime modifiedAt,
         String modifiedBy
 ) {
+
+    public static ArticleCommentDto of(Long articleId, UserDto userDto, String content) {
+        return new ArticleCommentDto(null, articleId, userDto, content, null, null, null, null);
+    }
 
     public static ArticleCommentDto of(Long id,
                                        Long articleId,
@@ -41,10 +46,10 @@ public record ArticleCommentDto(
         );
     }
 
-    public ArticleComment toEntity(Article entity) {
+    public ArticleComment toEntity(Article article, User user) {
         return ArticleComment.of(
-                entity,
-                userDto.toEntity(),
+                article,
+                user,
                 content
         );
     }

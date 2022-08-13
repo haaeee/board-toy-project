@@ -7,6 +7,7 @@ import com.example.boardproject.dto.ArticleCommentDto;
 import com.example.boardproject.dto.UserDto;
 import com.example.boardproject.repository.ArticleCommentRepository;
 import com.example.boardproject.repository.ArticleRepository;
+import com.example.boardproject.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,6 +36,9 @@ class ArticleCommentServiceTest {
     @Mock
     private ArticleCommentRepository articleCommentRepository;
 
+    @Mock
+    private UserRepository userRepository;
+
 
     @DisplayName("게시글을 Id를 조회하면, 게시글을 반환한다.")
     @Test
@@ -61,12 +65,15 @@ class ArticleCommentServiceTest {
         ArticleCommentDto dto = createArticleCommentDto("댓글");
         given(articleRepository.getReferenceById(dto.articleId())).willReturn(createArticle());
         given(articleCommentRepository.save(any(ArticleComment.class))).willReturn(null);
+        given(userRepository.getReferenceById(dto.userDto().id())).willReturn(createUser());
 
         // When
         sut.saveArticleComment(dto);
 
         // Then
+        then(articleRepository).should().getReferenceById(dto.articleId());
         then(articleCommentRepository).should().save(any(ArticleComment.class));
+        then(userRepository).should().getReferenceById(dto.userDto().id());
     }
 
     @DisplayName("댓글 저장을 시도했는데 맞는 게시글이 없으면, 경고 로그를 찍고 아무것도 안 한다.")
@@ -82,6 +89,7 @@ class ArticleCommentServiceTest {
         // Then
         then(articleRepository).should().getReferenceById(dto.articleId());
         then(articleCommentRepository).shouldHaveNoInteractions();
+        then(userRepository).shouldHaveNoInteractions();
     }
 
     @DisplayName("댓글 정보를 입력하면, 댓글을 수정한다.")
