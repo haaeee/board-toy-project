@@ -1,10 +1,6 @@
 package com.example.boardproject.controller;
 
-import com.example.boardproject.domain.Article;
-import com.example.boardproject.domain.User;
 import com.example.boardproject.domain.type.SearchType;
-import com.example.boardproject.dto.ArticleCommentDto;
-import com.example.boardproject.dto.UserDto;
 import com.example.boardproject.dto.response.ArticleResponse;
 import com.example.boardproject.dto.response.ArticleWithCommentsResponse;
 import com.example.boardproject.service.ArticleService;
@@ -59,4 +55,20 @@ public class ArticleController {
         return "articles/detail";
     }
 
+    @GetMapping("/search-hashtag")
+    public String searchHashtag(
+            @RequestParam(required = false) String searchValue,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            Model model
+    ) {
+        Page<ArticleResponse> articles = articleService.searchArticlesViaHashTag(searchValue, pageable).map(ArticleResponse::from);
+        List<Integer> barNumbers = paginationService.getPaginationBarNumbers(pageable.getPageNumber(), articles.getTotalPages());
+        List<String> hashtags = articleService.getHashtags();
+        model.addAttribute("articles", articles);
+        model.addAttribute("hashtags", hashtags);
+        model.addAttribute("paginationBarNumbers", barNumbers);
+        model.addAttribute("searchType", SearchType.HASHTAG);
+
+        return "articles/search-hashtag";
+    }
 }
