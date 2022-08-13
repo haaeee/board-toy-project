@@ -16,6 +16,10 @@ public record UserDto(
         String modifiedBy
 ) {
 
+    public static UserDto of(String email, String userPassword, String nickname, String memo) {
+        return new UserDto(null, email, userPassword, nickname, memo, null, null, null, null);
+    }
+
     public static UserDto of(Long id,
                              String email,
                              String userPassword,
