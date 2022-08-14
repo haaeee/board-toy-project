@@ -131,13 +131,14 @@ class ArticleCommentServiceTest {
     void givenArticleCommentId_whenDeletingArticleComment_thenDeletesArticleComment() {
         // Given
         Long articleCommentId = 1L;
-        willDoNothing().given(articleCommentRepository).deleteById(articleCommentId);
+        String userEmail = "jm@test.com";
+        willDoNothing().given(articleCommentRepository).deleteByIdAndUser_Email(articleCommentId, userEmail);
 
         // When
-        sut.deleteArticleComment(articleCommentId);
+        sut.deleteArticleComment(articleCommentId, userEmail);
 
         // Then
-        then(articleCommentRepository).should().deleteById(articleCommentId);
+        then(articleCommentRepository).should().deleteByIdAndUser_Email(articleCommentId, userEmail);
     }
 
     private ArticleCommentDto createArticleCommentDto(String content) {
