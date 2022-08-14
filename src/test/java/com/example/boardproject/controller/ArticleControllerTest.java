@@ -1,6 +1,6 @@
 package com.example.boardproject.controller;
 
-import com.example.boardproject.config.SecurityConfig;
+import com.example.boardproject.config.TestSecurityConfig;
 import com.example.boardproject.domain.constant.FormStatus;
 import com.example.boardproject.domain.constant.SearchType;
 import com.example.boardproject.dto.ArticleDto;
@@ -23,6 +23,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.TestExecutionEvent;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
@@ -42,9 +45,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * 인자 3개중에 하나만 Matcher를 쓰지 못 한다. (Invalid use of argument matchers!)
  * anyInt: any()는 null 값 허용
  * MediaType.APPLICATION_FORM_URLENCODED: post test -> parameter 로 test 하였기에
+ * /@WithUserDetails
  */
 @DisplayName("View 컨트롤러 - 게시글")
-@Import({SecurityConfig.class, FormDataEncoder.class})
+@Import({TestSecurityConfig.class, FormDataEncoder.class})
 @WebMvcTest(ArticleController.class)
 class ArticleControllerTest {
 
@@ -139,7 +143,22 @@ class ArticleControllerTest {
         then(paginationService).should().getPaginationBarNumbers(pageable.getPageNumber(), Page.empty().getTotalPages());
     }
 
-    @DisplayName("[view][GET] 게시글 페이지 - 정상 호출")
+    @DisplayName("[view][GET] 게시글 페이지 - 인증되지 않을 때 로그인 페이지로 이동")
+    @Test
+    public void givenNothing_whenRequestingArticleView_thenRedirectsToLoginPage() throws Exception {
+        // Given
+        long articleId = 1L;
+
+        // When & Then
+        mvc.perform(get("/articles/" + articleId))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrlPattern("**/login"));  // redirectedUrl: Full Url (http://127.0.0.1~)
+        then(articleService).shouldHaveNoInteractions();
+    }
+
+    // @WithMockUser: Mocking 유저 정보가 Custom impl 이랑 무관하다. (인증된 것만 해줌)
+    @WithMockUser
+    @DisplayName("[view][GET] 게시글 페이지 - 정상 호출, 인증된 사용자")
     @Test
     public void givenNothing_whenRequestingArticleView_thenReturnsArticleView() throws Exception {
         // Given
@@ -222,6 +241,7 @@ class ArticleControllerTest {
         then(paginationService).should().getPaginationBarNumbers(anyInt(), anyInt());
     }
 
+    @WithMockUser
     @DisplayName("[view][GET] 새 게시글 작성 페이지")
     @Test
     void givenNothing_whenRequesting_thenReturnsNewArticlePage() throws Exception {
@@ -235,6 +255,7 @@ class ArticleControllerTest {
                 .andExpect(model().attribute("formStatus", FormStatus.CREATE));
     }
 
+    @WithUserDetails(value = "test@email.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     @DisplayName("[view][POST] 새 게시글 등록 - 정상 호출")
     @Test
     void givenNewArticleInfo_whenRequesting_thenSavesNewArticle() throws Exception {
@@ -256,7 +277,8 @@ class ArticleControllerTest {
         then(articleService).should().saveArticle(any(ArticleDto.class));
     }
 
-    @DisplayName("[view][GET] 게시글 수정 페이지")
+    @WithMockUser
+    @DisplayName("[view][GET] 게시글 수정 페이지 - 정상 호출, 인증된 사용자")
     @Test
     void givenNothing_whenRequesting_thenReturnsArticleUpdatePage() throws Exception {
         // Given
@@ -274,6 +296,9 @@ class ArticleControllerTest {
         then(articleService).should().getArticle(articleId);
     }
 
+    // setupBefore = TestExecutionEvent.TEST_EXECUTION: 실행전에 setup 을 맞춘다.
+    // userDetailsServiceBeanName = "userDetailsService" 빈을 명시해줘도 된다.
+    @WithUserDetails(value = "test@email.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     @DisplayName("[view][POST] 게시글 수정 - 정상 호출")
     @Test
     void givenUpdatedArticleInfo_whenRequesting_thenUpdatesNewArticle() throws Exception {
@@ -295,12 +320,14 @@ class ArticleControllerTest {
         then(articleService).should().updateArticle(eq(articleId), any(ArticleDto.class));
     }
 
+    @WithUserDetails(value = "test@email.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     @DisplayName("[view][POST] 게시글 삭제 - 정상 호출")
     @Test
     void givenArticleIdToDelete_whenRequesting_thenDeletesArticle() throws Exception {
         // Given
         long articleId = 1L;
-        willDoNothing().given(articleService).deleteArticle(articleId);
+        String userEmail = "test@email.com";
+        willDoNothing().given(articleService).deleteArticle(articleId, userEmail);
 
         // When & Then
         mvc.perform(
@@ -311,7 +338,7 @@ class ArticleControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/articles"))
                 .andExpect(redirectedUrl("/articles"));
-        then(articleService).should().deleteArticle(articleId);
+        then(articleService).should().deleteArticle(articleId, userEmail);
     }
 
     private ArticleDto createArticleDto() {

@@ -2,8 +2,10 @@ package com.example.boardproject.controller;
 
 import com.example.boardproject.dto.UserDto;
 import com.example.boardproject.dto.request.ArticleCommentRequest;
+import com.example.boardproject.dto.security.UserPrincipal;
 import com.example.boardproject.service.ArticleCommentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,17 +19,22 @@ public class ArticleCommentController {
     private final ArticleCommentService articleCommentService;
 
     @PostMapping("/new")
-    public String postNewArticleComment(ArticleCommentRequest articleCommentRequest) {
-        articleCommentService.saveArticleComment(articleCommentRequest.toDto(UserDto.of(
-                "jm@email.com", "jm1234!@#$", "jmjmjames", ""
-        )));
+    public String postNewArticleComment(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            ArticleCommentRequest articleCommentRequest
+    ) {
+        articleCommentService.saveArticleComment(articleCommentRequest.toDto(userPrincipal.toDto()));
 
         return "redirect:/articles/" + articleCommentRequest.articleId();
     }
 
     @PostMapping("/{commentId}/delete")
-    public String deleteArticleComment(@PathVariable Long commentId, Long articleId) {
-        articleCommentService.deleteArticleComment(commentId);
+    public String deleteArticleComment(
+            @PathVariable Long commentId,
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            Long articleId
+    ) {
+        articleCommentService.deleteArticleComment(commentId, userPrincipal.getUsername());
 
         return "redirect:/articles/" + articleId;
     }
