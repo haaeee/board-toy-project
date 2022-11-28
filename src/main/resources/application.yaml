@@ -54,7 +54,7 @@ spring:
       ddl-auto: create
   sql:
     init:
-      mode: never
+      mode: always
 
 ---
 
