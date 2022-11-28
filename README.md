@@ -31,6 +31,7 @@ Spring Boot
 배포
 
 * Heroku
+* https://board-jaime.herokuapp.com
 
 ## 개선 사항
 
