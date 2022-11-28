@@ -11,29 +11,40 @@ logging:
   level:
     com.example.boardproject: debug
     org.springframework.web.servlet: debug # debug: false 한 다음 따로 이렇게 뽑자
-    org.hibernate.type.descriptor.sql.BasicBinder: trace # ? -> Binding Parameter 관찰 가능(개발 단계)
+#    org.hibernate.type.descriptor.sql.BasicBinder: trace # ? -> Binding Parameter 관찰 가능(개발 단계)
 
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/board
-    username: jm
-    password: jm1234!@#$
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mariadb://localhost:3306/board_db?useUnicode=true&characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Seoul
+    username: jaime
+    password: jaime
+    driver-class-name: org.mariadb.jdbc.Driver
   jpa:
-    defer-datasource-initialization: true # 초기 데이터를 생성하겧 할 수 있다. -> data.sql(약속)
-    hibernate.ddl-auto: create
+    defer-datasource-initialization: true # 초기 데이터를 생성하게 할 수 있다. -> data.sql(약속)
+    hibernate:
+      ddl-auto: create
     open-in-view: false
     show-sql: true
     properties:
-      hibernate.format_sql: true
       hibernate.default_batch_fetch_size: 100 # N + 1 문제 해결 bulk query
-  sql.init.mode: always   # data.sql 언제 작동 시킬것인가? ALWAYS, NEVER, EMBEDDED(임베디드 디비로 사용될 때만: TEST)
-  data.rest:
+  sql:
+    init:
+      mode: always  # data.sql 언제 작동 시킬것인가? ALWAYS, NEVER, EMBEDDED(임베디드 디비로 사용될 때만: TEST)
+  data:
+    rest:
       base-path: /api
       detection-strategy: annotated
-  thymeleaf3.decoupled-logic: true
+  thymeleaf3:
+    decoupled-logic: true
   # thymeleaf.cache: false
   # h2.console.enabled: true
 
 
-  # 특정 profile yaml 파일 시작
+---
+
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    url: jdbc:h2:mem:testdb
