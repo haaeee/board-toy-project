@@ -1,84 +1,85 @@
 <?xml version="1.0"?>
 <thlogic>
-  <attr sel="#head" th:replace="header :: head ('게시판 페이지')"/>
-  <!--<#header: id, header: element, .header: class&ndash;&gt;-->
-  <attr sel="#header" th:replace="header :: header"/>
-  <attr sel="#footer" th:replace="footer :: footer"/>
+    <attr sel="#head" th:replace="header :: head ('게시판 페이지')"/>
+    <!--<#header: id, header: element, .header: class&ndash;&gt;-->
+    <attr sel="#header" th:replace="header :: header"/>
+    <attr sel="#footer" th:replace="footer :: footer"/>
 
-  <attr sel="main" th:object="${articles}">
-    <attr sel="#search-form" th:action="@{/articles}" th:method="get" />
-    <attr sel="#search-type" th:remove="all-but-first">
-      <!--param: searchType을 꺼내온 것(직전까지의 검색 url)-->
-      <!--searchType.name: searchType 태그 클래스의 name-->
-      <attr sel="option[0]" th:each="searchType : ${searchTypes}"
-            th:value="${searchType}"
-            th:text="${searchType.description}"
-            th:selected="${param.searchType != null && (param.searchType.toString() == searchType.name)}"
-      />
-    </attr>
+    <attr sel="main" th:object="${articles}">
+        <attr sel="#search-form" th:action="@{/articles}" th:method="get"/>
+        <attr sel="#search-type" th:remove="all-but-first">
+            <!--param: searchType을 꺼내온 것(직전까지의 검색 url)-->
+            <!--searchType.name: searchType 태그 클래스의 name-->
+            <attr sel="option[0]" th:each="searchType : ${searchTypes}"
+                  th:value="${searchType}"
+                  th:text="${searchType.description}"
+                  th:selected="${param.searchType != null && (param.searchType.toString() == searchType.name)}"
+            />
+        </attr>
 
-    <attr sel="#search-value" th:value="${param.searchValue}"/>
+        <attr sel="#search-value" th:value="${param.searchValue}"/>
 
-    <attr sel="#article-table">
-      <attr sel="thead/tr">
-        <attr sel="th.title/a" th:text="'제목'" th:href="@{/articles(
+        <attr sel="#article-table">
+            <attr sel="thead/tr">
+                <attr sel="th.title/a" th:text="'제목'" th:href="@{/articles(
                   page=${articles.number},
                   sort='title' + (*{sort.getOrderFor('title')} != null ? (*{sort.getOrderFor('title').direction.name} != 'DESC' ? ',desc' : '') : ''),
                   searchType=${param.searchType},
                   searchValue=${param.searchValue}
         )}"/>
-        <attr sel="th.hashtag/a" th:text="'해시태그'" th:href="@{/articles(
+                <attr sel="th.hashtag/a" th:text="'해시태그'" th:href="@{/articles(
                   page=${articles.number},
                   sort='hashtag' + (*{sort.getOrderFor('hashtag')} != null ? (*{sort.getOrderFor('hashtag').direction.name} != 'DESC' ? ',desc' : '') : ''),
                   searchType=${param.searchType},
                   searchValue=${param.searchValue}
         )}"/>
-        <attr sel="th.nickname/a" th:text="'작성자'" th:href="@{/articles(
+                <attr sel="th.nickname/a" th:text="'작성자'" th:href="@{/articles(
                   page=${articles.number},
                   sort='user.nickname' + (*{sort.getOrderFor('user.nickname')} != null ? (*{sort.getOrderFor('user.nickname').direction.name} != 'DESC' ? ',desc' : '') : ''),
                   searchType=${param.searchType},
                   searchValue=${param.searchValue}
         )}"/>
-        <attr sel="th.created-at/a" th:text="'작성일'" th:href="@{/articles(
+                <attr sel="th.created-at/a" th:text="'작성일'" th:href="@{/articles(
                   page=${articles.number},
                   sort='createdAt' + (*{sort.getOrderFor('createdAt')} != null ? (*{sort.getOrderFor('createdAt').direction.name} != 'DESC' ? ',desc' : '') : ''),
                   searchType=${param.searchType},
                   searchValue=${param.searchValue}
         )}"/>
-      </attr>
+            </attr>
 
-      <!--th:remove="all-but-first" : 첫 번째만 남기고 다 지우겠다.-->
-      <attr sel="tbody" th:remove="all-but-first">
-        <attr sel="tr[0]" th:each="article : ${articles}">
-          <attr sel="td.title/a" th:text="${article.title}" th:href="@{'/articles/' + ${article.id}}"/>
-          <attr sel="td.hashtag" th:text="${article.hashtag}"/>
-          <attr sel="td.nickname" th:text="${article.nickname}"/>
-          <attr sel="td.created-at/time" th:datetime="${article.createdAt}"
-                th:text="${#temporals.format(article.createdAt, 'yyyy-MM-dd')}"/>
+            <!--th:remove="all-but-first" : 첫 번째만 남기고 다 지우겠다.-->
+            <attr sel="tbody" th:remove="all-but-first">
+                <attr sel="tr[0]" th:each="article : ${articles}">
+                    <!--a 태그에 해당하는 th:href 처리-->
+                    <attr sel="td.title/a" th:text="${article.title}" th:href="@{'/articles/' + ${article.id}}"/>
+                    <attr sel="td.hashtag" th:text="${article.hashtag}"/>
+                    <attr sel="td.nickname" th:text="${article.nickname}"/>
+                    <attr sel="td.created-at/time" th:datetime="${article.createdAt}"
+                          th:text="${#temporals.format(article.createdAt, 'yyyy-MM-dd')}"/>
+                </attr>
+            </attr>
         </attr>
-      </attr>
-    </attr>
 
-    <attr sel="#write-article" sec:authorize="isAuthenticated()" th:href="@{/articles/form}" />
+        <attr sel="#write-article" sec:authorize="isAuthenticated()" th:href="@{/articles/form}"/>
 
-    <attr sel="#pagination">
-      <attr sel="li[0]/a"
-            th:text="'이전'"
-            th:href="@{/articles(page=${articles.number - 1}, searchType=${param.searchType}, searchValue=${param.searchValue})}"
-            th:class="'page-link' + (${articles.number <= 0 ? ' disabled' : ''})"
-      />
-      <attr sel="li[1]" th:class="page-item" th:each="pageNumber : ${paginationBarNumbers}">
-        <attr sel="a"
-              th:text="${pageNumber + 1}"
-              th:href="@{/articles(page=${pageNumber}, searchType=${param.searchType}, searchValue=${param.searchValue})}"
-              th:class="'page-link' + (${pageNumber} == ${articles.number} ? ' disabled': '')"
-        />
-      </attr>
-      <attr sel="li[2]/a"
-            th:text="'다음'"
-            th:href="@{/articles/(page=${articles.number + 1}, searchType=${param.searchType}, searchValue=${param.searchValue})}"
-            th:class="'page-link' + (${articles.number} >= ${articles.totalPages - 1} ? ' disabled': '')"
-      />
+        <attr sel="#pagination">
+            <attr sel="li[0]/a"
+                  th:text="'이전'"
+                  th:href="@{/articles(page=${articles.number - 1}, searchType=${param.searchType}, searchValue=${param.searchValue})}"
+                  th:class="'page-link' + (${articles.number <= 0 ? ' disabled' : ''})"
+            />
+            <attr sel="li[1]" th:class="page-item" th:each="pageNumber : ${paginationBarNumbers}">
+                <attr sel="a"
+                      th:text="${pageNumber + 1}"
+                      th:href="@{/articles(page=${pageNumber}, searchType=${param.searchType}, searchValue=${param.searchValue})}"
+                      th:class="'page-link' + (${pageNumber} == ${articles.number} ? ' disabled': '')"
+                />
+            </attr>
+            <attr sel="li[2]/a"
+                  th:text="'다음'"
+                  th:href="@{/articles/(page=${articles.number + 1}, searchType=${param.searchType}, searchValue=${param.searchValue})}"
+                  th:class="'page-link' + (${articles.number} >= ${articles.totalPages - 1} ? ' disabled': '')"
+            />
+        </attr>
     </attr>
-  </attr>
 </thlogic>
