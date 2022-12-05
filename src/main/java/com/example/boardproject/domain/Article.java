@@ -19,6 +19,7 @@ import java.util.Set;
 })
 @Entity
 public class Article extends AuditingFields {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -65,13 +66,12 @@ public class Article extends AuditingFields {
     public boolean equals(Object o) {
         if (this == o) return true;
         // Pattern Matching for instanceof in Java 14
-        if (!(o instanceof Article article)) return false;
-        return id != null && id.equals(article.id);
+        if (!(o instanceof Article that)) return false;
+        return this.getId() != null && this.getId().equals(that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(this.getId());
     }
-
 }

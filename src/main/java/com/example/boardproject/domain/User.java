@@ -18,6 +18,7 @@ import java.util.Objects;
 })
 @Entity
 public class User extends AuditingFields {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -55,12 +56,12 @@ public class User extends AuditingFields {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof User user)) return false;
-        return id != null && id.equals(user.id);
+        if (!(o instanceof User that)) return false;
+        return this.getId() != null && this.getId().equals(that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(this.getId());
     }
 }
