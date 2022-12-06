@@ -1,6 +1,5 @@
 package com.example.boardproject.controller;
 
-import com.example.boardproject.dto.UserDto;
 import com.example.boardproject.dto.request.ArticleCommentRequest;
 import com.example.boardproject.dto.security.UserPrincipal;
 import com.example.boardproject.service.ArticleCommentService;

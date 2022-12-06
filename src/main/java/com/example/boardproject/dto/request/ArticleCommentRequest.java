@@ -7,6 +7,7 @@ public record ArticleCommentRequest(
         Long articleId,
         String content
 ) {
+
     public static ArticleCommentRequest of(Long articleId, String content) {
         return new ArticleCommentRequest(articleId, content);
     }
@@ -18,5 +19,4 @@ public record ArticleCommentRequest(
                 content
         );
     }
-
 }

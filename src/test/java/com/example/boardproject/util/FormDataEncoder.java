@@ -19,7 +19,8 @@ public class FormDataEncoder {
     }
 
     public String encode(Object obj) {
-        Map<String, String> fieldMap = mapper.convertValue(obj, new TypeReference<>() {});
+        Map<String, String> fieldMap = mapper.convertValue(obj, new TypeReference<>() {
+        });
         MultiValueMap<String, String> valueMap = new LinkedMultiValueMap<>();
         valueMap.setAll(fieldMap);
 
@@ -29,5 +30,4 @@ public class FormDataEncoder {
                 .build()
                 .getQuery();
     }
-
 }

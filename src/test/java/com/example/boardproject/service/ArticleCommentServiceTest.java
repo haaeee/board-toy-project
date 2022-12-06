@@ -193,5 +193,4 @@ class ArticleCommentServiceTest {
                 "#spring"
         );
     }
-
 }

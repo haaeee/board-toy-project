@@ -31,16 +31,15 @@ class PaginationServiceTest {
     }
 
     /**
-     * 파라미터 값을 여러번 주입해서, 여러번 테스트를 진행할 수 있다.
-     * 입력값을 넣어주는 MethodSource 는 Method 형식으로 만든다. 이 때 테스트 메소드가 default와 다르면 적어줘야 한다.
+     * 파라미터 값을 여러번 주입해서, 여러번 테스트를 진행할 수 있다. 입력값을 넣어주는 MethodSource 는 Method 형식으로 만든다. 이 때 테스트 메소드가 default와 다르면 적어줘야 한다.
      * ParameterizedTest DisplayName 설정 (JUNIT5 공식문서)
      */
     @DisplayName("현재 페이지 번호와 총 페이지 수를 주면, 페이징 바 리스트를 만들어준다.")
     @MethodSource
     @ParameterizedTest(name = "[{index}] 현재 페이지: {0}, 총 페이지: {1} => {2}")
     void givenCurrentPageNumberAndTotalPages_whenCalculating_thenReturnsPaginationBarNumbers(int currentPageNumber,
-                                                                                            int totalPages,
-                                                                                            List<Integer> expected
+                                                                                             int totalPages,
+                                                                                             List<Integer> expected
     ) {
         // Given
 
@@ -78,5 +77,4 @@ class PaginationServiceTest {
         // Then
         assertThat(barLength).isEqualTo(5);
     }
-
 }

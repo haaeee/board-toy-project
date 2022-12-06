@@ -109,5 +109,4 @@ class JpaRepositoryTest {
             return () -> Optional.of("jm");
         }
     }
-
 }

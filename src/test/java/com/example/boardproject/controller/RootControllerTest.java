@@ -37,5 +37,4 @@ class RootControllerTest {
                 .andExpect(status().is2xxSuccessful())
                 .andDo(MockMvcResultHandlers.print());
     }
-
 }

@@ -72,5 +72,4 @@ class FormDataEncoderTest {
     enum TestEnum {
         ONE, TWO, THREE
     }
-
 }
