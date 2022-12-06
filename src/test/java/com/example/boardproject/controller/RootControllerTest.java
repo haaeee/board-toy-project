@@ -21,7 +21,7 @@ class RootControllerTest {
 
     private final MockMvc mvc;
 
-    public RootControllerTest(@Autowired MockMvc mvc) {
+     RootControllerTest(@Autowired MockMvc mvc) {
         this.mvc = mvc;
     }
 
@@ -37,5 +37,4 @@ class RootControllerTest {
                 .andExpect(status().is2xxSuccessful())
                 .andDo(MockMvcResultHandlers.print());
     }
-
 }

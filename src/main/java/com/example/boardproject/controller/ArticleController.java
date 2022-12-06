@@ -2,13 +2,13 @@ package com.example.boardproject.controller;
 
 import com.example.boardproject.domain.constant.FormStatus;
 import com.example.boardproject.domain.constant.SearchType;
-import com.example.boardproject.dto.UserDto;
 import com.example.boardproject.dto.request.ArticleRequest;
 import com.example.boardproject.dto.response.ArticleResponse;
 import com.example.boardproject.dto.response.ArticleWithCommentsResponse;
 import com.example.boardproject.dto.security.UserPrincipal;
 import com.example.boardproject.service.ArticleService;
 import com.example.boardproject.service.PaginationService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,9 +17,11 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RequiredArgsConstructor
 @RequestMapping("/articles")
@@ -36,8 +38,10 @@ public class ArticleController {
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
             Model model
     ) {
-        Page<ArticleResponse> articles = articleService.searchArticles(searchType, searchValue, pageable).map(ArticleResponse::from);
-        List<Integer> barNumbers = paginationService.getPaginationBarNumbers(pageable.getPageNumber(), articles.getTotalPages());
+        Page<ArticleResponse> articles = articleService.searchArticles(searchType, searchValue, pageable)
+                .map(ArticleResponse::from);
+        List<Integer> barNumbers = paginationService.getPaginationBarNumbers(pageable.getPageNumber(),
+                articles.getTotalPages());
 
         model.addAttribute("articles", articles);
         model.addAttribute("paginationBarNumbers", barNumbers);
@@ -48,7 +52,8 @@ public class ArticleController {
 
     @GetMapping("/{articleId}")
     public String article(@PathVariable Long articleId, Model model) {
-        ArticleWithCommentsResponse article = ArticleWithCommentsResponse.from(articleService.getArticleWithComments(articleId));
+        ArticleWithCommentsResponse article = ArticleWithCommentsResponse.from(
+                articleService.getArticleWithComments(articleId));
 
         model.addAttribute("article", article);
         model.addAttribute("articleComments", article.articleCommentResponse());
@@ -63,8 +68,10 @@ public class ArticleController {
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
             Model model
     ) {
-        Page<ArticleResponse> articles = articleService.searchArticlesViaHashTag(searchValue, pageable).map(ArticleResponse::from);
-        List<Integer> barNumbers = paginationService.getPaginationBarNumbers(pageable.getPageNumber(), articles.getTotalPages());
+        Page<ArticleResponse> articles = articleService.searchArticlesViaHashTag(searchValue, pageable)
+                .map(ArticleResponse::from);
+        List<Integer> barNumbers = paginationService.getPaginationBarNumbers(pageable.getPageNumber(),
+                articles.getTotalPages());
         List<String> hashtags = articleService.getHashtags();
 
         model.addAttribute("articles", articles);
@@ -102,7 +109,7 @@ public class ArticleController {
         return "articles/form";
     }
 
-    @PostMapping ("/{articleId}/form")
+    @PostMapping("/{articleId}/form")
     public String updateArticle(
             @PathVariable Long articleId,
             @AuthenticationPrincipal UserPrincipal userPrincipal,
@@ -122,5 +129,4 @@ public class ArticleController {
 
         return "redirect:/articles";
     }
-
 }

@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @DisplayName("View 컨트롤러 - 댓글")
 @Import({TestSecurityConfig.class, FormDataEncoder.class})
-@WebMvcTest(ArticleCommentController .class)
+@WebMvcTest(ArticleCommentController.class)
 class ArticleCommentControllerTest {
 
     private final MockMvc mvc;
@@ -38,7 +38,7 @@ class ArticleCommentControllerTest {
     private ArticleCommentService articleCommentService;
 
 
-    public ArticleCommentControllerTest(@Autowired MockMvc mvc, @Autowired FormDataEncoder formDataEncoder) {
+     ArticleCommentControllerTest(@Autowired MockMvc mvc, @Autowired FormDataEncoder formDataEncoder) {
         this.mvc = mvc;
         this.formDataEncoder = formDataEncoder;
     }
@@ -54,14 +54,14 @@ class ArticleCommentControllerTest {
 
         // When & Then
         mvc.perform(
-                post("/comments/new")
-                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                        .content(formDataEncoder.encode(request))
-                        .with(csrf())
-        )
+                        post("/comments/new")
+                                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                                .content(formDataEncoder.encode(request))
+                                .with(csrf())
+                )
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/articles/" + articleId))
-                .andExpect(redirectedUrl("/articles/"+ articleId));
+                .andExpect(redirectedUrl("/articles/" + articleId));
         then(articleCommentService).should().saveArticleComment(any(ArticleCommentDto.class));
     }
 
@@ -77,13 +77,13 @@ class ArticleCommentControllerTest {
 
         // When & Then
         mvc.perform(
-                post("/comments/" + articleCommentId + "/delete")
-                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                        .content(formDataEncoder.encode(Map.of("articleId", articleId)))
-                        .with(csrf())
-        )
+                        post("/comments/" + articleCommentId + "/delete")
+                                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                                .content(formDataEncoder.encode(Map.of("articleId", articleId)))
+                                .with(csrf())
+                )
                 .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/articles/" +  articleId))
+                .andExpect(view().name("redirect:/articles/" + articleId))
                 .andExpect(redirectedUrl("/articles/" + articleId));
         then(articleCommentService).should().deleteArticleComment(articleCommentId, userEmail);
     }

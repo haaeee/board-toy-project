@@ -20,11 +20,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional  // default: RollBack
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-public class DataRestTest {
+ class DataRestTest {
 
     private final MockMvc mvc;
 
-    public DataRestTest(@Autowired MockMvc mvc) {
+     DataRestTest(@Autowired MockMvc mvc) {
         this.mvc = mvc;
     }
 
@@ -53,8 +53,8 @@ public class DataRestTest {
 
     @DisplayName("[api] 게시글을 통해 댓글 리스트 조회")
     @Test
-    void givenNothing_whenRequestingArticleCommentsFromArticle_thenReturnsArticleCommentsJsonResponse() throws Exception
-    {
+    void givenNothing_whenRequestingArticleCommentsFromArticle_thenReturnsArticleCommentsJsonResponse()
+            throws Exception {
         // given
         // when & then
         mvc.perform(get("/api/articles/111"))
@@ -65,8 +65,7 @@ public class DataRestTest {
 
     @DisplayName("[api] 댓글 리스트 조회")
     @Test
-    void givenNothing_whenRequestingArticleComments_thenReturnsArticleCommentsJsonResponse() throws Exception
-    {
+    void givenNothing_whenRequestingArticleComments_thenReturnsArticleCommentsJsonResponse() throws Exception {
         // given
         // when & then
         mvc.perform(get("/api/articleComments"))
@@ -77,8 +76,7 @@ public class DataRestTest {
 
     @DisplayName("[api] 댓글 단건 조회")
     @Test
-    void givenNothing_whenRequestingArticleComment_thenReturnsArticleCommentJsonResponse() throws Exception
-    {
+    void givenNothing_whenRequestingArticleComment_thenReturnsArticleCommentJsonResponse() throws Exception {
         // given
         // when & then
         mvc.perform(get("/api/articleComments/1"))

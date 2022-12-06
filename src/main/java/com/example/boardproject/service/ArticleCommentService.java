@@ -46,7 +46,9 @@ public class ArticleCommentService {
     public void updateArticleComment(ArticleCommentDto dto) {
         try {
             ArticleComment articleComment = articleCommentRepository.getReferenceById(dto.id());
-            if (dto.content() != null) { articleComment.setContent(dto.content()); }
+            if (dto.content() != null) {
+                articleComment.setContent(dto.content());
+            }
         } catch (EntityNotFoundException e) {
             log.warn("댓글 업데이트 실패. 댓글을 찾을 수 없습니다. - dto: {}", dto);
         }

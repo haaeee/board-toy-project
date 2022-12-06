@@ -323,5 +323,4 @@ class ArticleServiceTest {
                 null
         );
     }
-
 }
