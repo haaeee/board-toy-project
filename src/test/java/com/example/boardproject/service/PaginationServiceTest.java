@@ -26,7 +26,7 @@ class PaginationServiceTest {
 
     // Test 에서는 꼭 생성자 주입에 @Autowired (X) -> org.junit.jupiter.api.extension.ParameterResolutionException
     // 주입 받는 것이 자기 자신이므로 그냥 new 로 구체화 할 수 있다.
-    public PaginationServiceTest(@Autowired PaginationService sut) {
+     PaginationServiceTest(@Autowired PaginationService sut) {
         this.sut = sut;
     }
 

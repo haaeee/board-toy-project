@@ -17,13 +17,13 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 @DisplayName("View 컨트롤러 - 인증")
 @Import(TestSecurityConfig.class)
 @WebMvcTest(Void.class)
-public class AuthControllerTest {
+class AuthControllerTest {
 
     private final MockMvc mvc;
 
     // 슬라이스 테스트에서는 생성자를 통한 주입이여도 @Autowired 해줘야함
     // 즉, spring 이 생성자 주입할 때도 저절로 해주는 것
-    public AuthControllerTest(@Autowired MockMvc mvc) {
+    AuthControllerTest(@Autowired MockMvc mvc) {
         this.mvc = mvc;
     }
 
