@@ -1,36 +1,33 @@
 package com.example.boardproject.dto;
 
+import static java.util.stream.Collectors.*;
+
 import com.example.boardproject.domain.Article;
 import com.example.boardproject.domain.User;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 public record ArticleDto(
         Long id,
         UserDto userDto,
         String title,
         String content,
-        String hashtag,
+        Set<HashtagDto> hashtagDtos,
         LocalDateTime createdAt,
         String createdBy,
         LocalDateTime modifiedAt,
         String modifiedBy
 ) {
 
-    public static ArticleDto of(UserDto userDto, String title, String content, String hashtag) {
-        return new ArticleDto(null, userDto, title, content, hashtag, null, null, null, null);
+    public static ArticleDto of(UserDto userDto, String title, String content, Set<HashtagDto> hashtagDtos) {
+        return new ArticleDto(null, userDto, title, content, hashtagDtos, null, null, null, null);
     }
 
-    public static ArticleDto of(Long id,
-                                UserDto userDto,
-                                String title,
-                                String content,
-                                String hashtag,
-                                LocalDateTime createdAt,
-                                String createdBy,
-                                LocalDateTime modifiedAt,
+    public static ArticleDto of(Long id, UserDto userDto, String title, String content, Set<HashtagDto> hashtagDtos,
+                                LocalDateTime createdAt, String createdBy, LocalDateTime modifiedAt,
                                 String modifiedBy) {
-        return new ArticleDto(id, userDto, title, content, hashtag, createdAt, createdBy, modifiedAt, modifiedBy);
+        return new ArticleDto(id, userDto, title, content, hashtagDtos, createdAt, createdBy, modifiedAt, modifiedBy);
     }
 
     // 위 아래의 2가지 method 를 통해 dto -> domain 영향을 없앰
@@ -40,7 +37,9 @@ public record ArticleDto(
                 UserDto.from(entity.getUser()),
                 entity.getTitle(),
                 entity.getContent(),
-                entity.getHashtag(),
+                entity.getHashtags().stream()
+                        .map(HashtagDto::from)
+                        .collect(toUnmodifiableSet()),
                 entity.getCreatedAt(),
                 entity.getCreatedBy(),
                 entity.getModifiedAt(),
@@ -52,9 +51,7 @@ public record ArticleDto(
         return Article.of(
                 user,
                 title,
-                content,
-                hashtag
+                content
         );
     }
-
 }

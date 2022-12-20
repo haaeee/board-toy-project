@@ -17,12 +17,12 @@ import java.util.Objects;
 @Entity
 public class ArticleComment extends AuditingFields {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Setter
     @ManyToOne(optional = false)
+    @JoinColumn(name = "article_id")
     private Article article;  // 게시글 (id)
 
     @Setter

@@ -1,28 +1,30 @@
 package com.example.boardproject.dto.response;
 
+import static java.util.stream.Collectors.*;
+
 import com.example.boardproject.dto.ArticleWithCommentsDto;
 
+import com.example.boardproject.dto.HashtagDto;
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public record ArticleWithCommentsResponse(
         Long id,
         String title,
         String content,
-        String hashtag,
+        Set<String> hashtags,
         LocalDateTime createdAt,
         String email,
         String nickname,
         Set<ArticleCommentResponse> articleCommentResponse
 ) {
 
-    public static ArticleWithCommentsResponse of(Long id, String title, String content, String hashtag,
+    public static ArticleWithCommentsResponse of(Long id, String title, String content, Set<String> hashtags,
                                                  LocalDateTime createdAt, String email, String nickname,
                                                  Set<ArticleCommentResponse> articleCommentResponses) {
-        return new ArticleWithCommentsResponse(id, title, content, hashtag, createdAt, email, nickname,
-                articleCommentResponses);
+        return new ArticleWithCommentsResponse(id, title, content, hashtags,
+                createdAt, email, nickname, articleCommentResponses);
     }
 
     public static ArticleWithCommentsResponse from(ArticleWithCommentsDto dto) {
@@ -35,13 +37,15 @@ public record ArticleWithCommentsResponse(
                 dto.id(),
                 dto.title(),
                 dto.content(),
-                dto.hashtag(),
+                dto.hashtagDtos().stream()
+                        .map(HashtagDto::hashtagName)
+                        .collect(toUnmodifiableSet()),
                 dto.createdAt(),
                 dto.userDto().email(),
                 nickname,
                 dto.articleCommentDtos().stream()
                         .map(ArticleCommentResponse::from)
-                        .collect(Collectors.toCollection(LinkedHashSet::new))
+                        .collect(toCollection(LinkedHashSet::new))
         );
     }
 

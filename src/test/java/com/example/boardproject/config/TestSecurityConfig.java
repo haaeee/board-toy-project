@@ -17,12 +17,11 @@ public class TestSecurityConfig {
     private UserRepository userRepository;
 
     @BeforeTestMethod
-    void securitySetUp() {
+    public void securitySetUp() {
         given(userRepository.findByEmail(anyString()))
                 .willReturn(Optional.of(User.of("test@email.com",
                         "password",
                         "nickname(test)",
                         "memo(test)")));
     }
-
 }

@@ -1,19 +1,32 @@
 package com.example.boardproject.domain;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import static javax.persistence.GenerationType.IDENTITY;
 
-import javax.persistence.*;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
+import javax.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @ToString(callSuper = true)
 @Table(indexes = {
         @Index(columnList = "title"),
-        @Index(columnList = "hashtag"),
         @Index(columnList = "createdAt"),
         @Index(columnList = "createdBy")
 })
@@ -21,7 +34,8 @@ import java.util.Set;
 public class Article extends AuditingFields {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = IDENTITY)
+    @Column(name = "article_id")
     private Long id;
 
     @Setter
@@ -38,9 +52,17 @@ public class Article extends AuditingFields {
     private String content;  // 본문
 
     @Setter
-    private String hashtag;  // 해시태그
+    @ToString.Exclude
+//    @OneToMany(mappedBy = "article", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+//    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinTable(
+            name = "article_hashtag",
+            joinColumns = @JoinColumn(name = "article_id"),
+            inverseJoinColumns = @JoinColumn(name = "hashtag_id")
+    )
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private Set<Hashtag> hashtags = new LinkedHashSet<>();  // persist: insert, merge: update
 
-    // mappedBy 를 걸지 않으면 두 entity 이름을 합쳐서 테이블을 하나 만듬
     @ToString.Exclude
     @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL)
@@ -50,25 +72,41 @@ public class Article extends AuditingFields {
     protected Article() {
     }
 
-    private Article(User user, String title, String content, String hashtag) {
+    private Article(User user, String title, String content) {
         this.user = user;
         this.title = title;
         this.content = content;
-        this.hashtag = hashtag;
     }
 
     // factory method
-    public static Article of(User user, String title, String content, String hashtag) {
-        return new Article(user, title, content, hashtag);
+    public static Article of(User user, String title, String content) {
+        return new Article(user, title, content);
+    }
+
+    public void addHashtag(Hashtag hashtag) {
+        this.getHashtags().add(hashtag);
+    }
+
+    public void addHashtags(Collection<Hashtag> hashtags) {
+        this.getHashtags().addAll(hashtags);
+    }
+
+    public void clearHashtags() {
+        this.getHashtags().clear();
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
+        if (this == o) {
+            return true;
+        }
         // Pattern Matching for instanceof in Java 14
-        if (!(o instanceof Article that)) return false;
+        if (!(o instanceof Article that)) {
+            return false;
+        }
         return this.getId() != null && this.getId().equals(that.id);
     }
+
 
     @Override
     public int hashCode() {
