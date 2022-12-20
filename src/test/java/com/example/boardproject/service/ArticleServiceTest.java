@@ -139,7 +139,7 @@ class ArticleServiceTest {
         // Given
         Long articleId = 1L;
         Article article = createArticle();
-        given(articleRepository.findById(articleId)).willReturn(Optional.of(article));
+        given(articleRepository.findWithUserById(articleId)).willReturn(Optional.of(article));
 
         // When
         ArticleWithCommentsDto dto = sut.getArticleWithComments(articleId);
@@ -151,14 +151,14 @@ class ArticleServiceTest {
                 .hasFieldOrPropertyWithValue("hashtagDtos", article.getHashtags().stream()
                         .map(HashtagDto::from)
                         .collect(toUnmodifiableSet()));
-        then(articleRepository).should().findById(articleId);
+        then(articleRepository).should().findWithUserById(articleId);
     }
 
     @Test
     void 댓글_달린_게시글이_없으면_예외를_던진다() {
         // Given
         Long articleId = 0L;
-        given(articleRepository.findById(articleId)).willReturn(Optional.empty());
+        given(articleRepository.findWithUserById(articleId)).willReturn(Optional.empty());
 
         // When
         Throwable t = catchThrowable(() -> sut.getArticleWithComments(articleId));
@@ -167,7 +167,7 @@ class ArticleServiceTest {
         assertThat(t)
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("게시글이 존재하지 않습니다. - articleId: " + articleId);
-        then(articleRepository).should().findById(articleId);
+        then(articleRepository).should().findWithUserById(articleId);
     }
 
     @Test
@@ -191,10 +191,10 @@ class ArticleServiceTest {
     }
 
     @Test
-    void 게시글이_존재하지_않으면_예외를_던진다() {
+    void 게시글이_없으면_예외를_던진다() {
         // Given
         Long articleId = 0L;
-        given(articleRepository.findById(articleId)).willReturn(Optional.empty());
+        given(articleRepository.findWithUserById(articleId)).willReturn(Optional.empty());
 
         // When
         Throwable t = catchThrowable(() -> sut.getArticleWithComments(articleId));
@@ -203,7 +203,7 @@ class ArticleServiceTest {
         assertThat(t)
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("게시글이 존재하지 않습니다. - articleId: " + articleId);
-        then(articleRepository).should().findById(articleId);
+        then(articleRepository).should().findWithUserById(articleId);
     }
 
     @Test
