@@ -13,7 +13,10 @@ import com.example.boardproject.repository.HashtagRepository;
 import com.example.boardproject.repository.UserRepository;
 import java.util.HashSet;
 import java.util.Set;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator.ReplaceUnderscores;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,10 +35,12 @@ import java.util.Optional;
 import static java.util.stream.Collectors.toUnmodifiableSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.BDDAssertions.as;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
 
 @DisplayName("비즈니스 로직 - 게시글")
+@DisplayNameGeneration(ReplaceUnderscores.class)
 @ExtendWith(MockitoExtension.class)
 class ArticleServiceTest {
 
@@ -52,9 +57,8 @@ class ArticleServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    @DisplayName("검색어 없이 게시글을 검색하면, 게시글 페이지를 반환한다.")
     @Test
-    void givenNoSearchParameters_whenSearchingArticles_thenReturnsArticlePage() {
+    void 검색어_없이_게시글을_검색하면_게시글_페이지를_반환한다() {
         // Given
         Pageable pageable = Pageable.ofSize(20);
         given(articleRepository.findAll(pageable)).willReturn(Page.empty());
@@ -67,9 +71,8 @@ class ArticleServiceTest {
         then(articleRepository).should().findAll(pageable);
     }
 
-    @DisplayName("검색어와 함께 게시글을 검색하면, 게시글 페이지를 반환한다.")
     @Test
-    void givenSearchParameters_whenSearchingArticles_thenReturnsArticlePage() {
+    void 검색어와_함께_게시글을_검색하면_게시글_페이지를_반환한다() {
         // Given
         SearchType searchType = SearchType.TITLE;
         String searchKeyword = "title";
@@ -84,9 +87,8 @@ class ArticleServiceTest {
         then(articleRepository).should().findByTitleContaining(searchKeyword, pageable);
     }
 
-    @DisplayName("검색어 없이 게시글을 해시태그 검색하면, 빈 페이지를 반환한다.")
     @Test
-    void givenNoSearchParameters_whenSearchingArticlesViaHashtag_thenReturnsEmptyPage() {
+    void 검색어_없이_게시글을_해시태그_검색하면_빈_페이지를_반환한다() {
         // Given
         Pageable pageable = Pageable.ofSize(20);
 
@@ -99,14 +101,13 @@ class ArticleServiceTest {
         then(articleRepository).shouldHaveNoInteractions();
     }
 
-    @DisplayName("없는 해시태그를 검색하면, 빈 페이지를 반환한다.")
     @Test
-    void givenNonexistentHashtag_whenSearchingArticlesViaHashtag_thenReturnsEmptyPage() {
+    void 없는_해시태그를_검색하면_빈_페이지를_반환한다() {
         // Given
         String hashtagName = "없는 해시태그";
         Pageable pageable = Pageable.ofSize(20);
-        given(articleRepository.findByHashtagNames(List.of(hashtagName), pageable))
-                .willReturn(new PageImpl<>(List.of(), pageable, 0));
+        given(articleRepository.findByHashtagNames(List.of(hashtagName), pageable)).willReturn(
+                new PageImpl<>(List.of(), pageable, 0));
 
         // When
         Page<ArticleDto> articles = sut.searchArticlesViaHashtag(hashtagName, pageable);
@@ -116,9 +117,8 @@ class ArticleServiceTest {
         then(articleRepository).should().findByHashtagNames(List.of(hashtagName), pageable);
     }
 
-    @DisplayName("게시글을 해시태그 검색하면, 게시글 페이지를 반환한다.")
     @Test
-    void givenHashtag_whenSearchingArticlesViaHashtag_thenReturnsArticlePage() {
+    void 게시글을_해시태그_검색하면_게시글_페이지를_반환한다() {
         // Given
         String hashtagName = "spring";
         Pageable pageable = Pageable.ofSize(20);
@@ -134,9 +134,8 @@ class ArticleServiceTest {
         then(articleRepository).should().findByHashtagNames(List.of(hashtagName), pageable);
     }
 
-    @DisplayName("게시글 ID로 조회하면, 댓글 담긴 게시글을 반환한다.")
     @Test
-    void givenArticleId_whenSearchingArticleWithComments_thenReturnsArticleWithComments() {
+    void 게시글_Id로_조회하면_댓글_담긴_게시글을_반환한다() {
         // Given
         Long articleId = 1L;
         Article article = createArticle();
@@ -155,9 +154,8 @@ class ArticleServiceTest {
         then(articleRepository).should().findById(articleId);
     }
 
-    @DisplayName("댓글 달린 게시글이 없으면, 예외를 던진다.")
     @Test
-    void givenNonexistentArticleId_whenSearchingArticleWithComments_thenThrowsException() {
+    void 댓글_달린_게시글이_없으면_예외를_던진다() {
         // Given
         Long articleId = 0L;
         given(articleRepository.findById(articleId)).willReturn(Optional.empty());
@@ -172,9 +170,8 @@ class ArticleServiceTest {
         then(articleRepository).should().findById(articleId);
     }
 
-    @DisplayName("게시글을 조회하면, 게시글을 반환한다.")
     @Test
-    void givenArticleId_whenSearchingArticle_thenReturnsArticle() {
+    void 게시글을_조회하면_게시글을_반환한다() {
         // Given
         Long articleId = 1L;
         Article article = createArticle();
@@ -187,15 +184,14 @@ class ArticleServiceTest {
         assertThat(dto)
                 .hasFieldOrPropertyWithValue("title", article.getTitle())
                 .hasFieldOrPropertyWithValue("content", article.getContent())
-                .hasFieldOrPropertyWithValue("hashtag", article.getHashtags().stream()
+                .hasFieldOrPropertyWithValue("hashtagDtos", article.getHashtags().stream()
                         .map(HashtagDto::from)
                         .collect(toUnmodifiableSet()));
         then(articleRepository).should().findById(articleId);
     }
 
-    @DisplayName("게시글이 존재하지 않으면, 예외를 던진다.")
     @Test
-    void givenNonexistentArticleId_whenSearchingArticle_thenThrowsException() {
+    void 게시글이_존재하지_않으면_예외를_던진다() {
         // Given
         Long articleId = 0L;
         given(articleRepository.findById(articleId)).willReturn(Optional.empty());
@@ -210,9 +206,8 @@ class ArticleServiceTest {
         then(articleRepository).should().findById(articleId);
     }
 
-    @DisplayName("게시글 정보를 입력하면, 본문에서 해시태그 정보를 추출하여 해시태그 정보가 포함된 게시글을 생성한다.")
     @Test
-    void givenArticleInfo_whenSavingArticle_thenExtractsHashtagsFromContentAndSavesArticleWithExtractedHashtags() {
+    void 게시글_정보를_입력하면_본문에서_해시태그_정보를_추출하여_해시태그_정보가_포함된_게시글을_생성한다() {
         // Given
         ArticleDto dto = createArticleDto();
         Set<String> expectedHashtagNames = Set.of("java", "spring");
@@ -233,14 +228,14 @@ class ArticleServiceTest {
         then(articleRepository).should().save(any(Article.class));
     }
 
-    @DisplayName("게시글의 수정 정보를 입력하면, 게시글을 수정한다.")
     @Test
-    void givenModifiedArticleInfo_whenUpdatingArticle_thenUpdatesArticle() {
+    void 게시글의_수정_정보를_입력하면_게시글을_수정한다() {
         // Given
         Article article = createArticle();
-        ArticleDto dto = createArticleDto("새 타이틀", "새 내용");
+        ArticleDto dto = createArticleDto("새 타이틀", "새 내용 #springboot");
         Set<String> expectedHashtagNames = Set.of("springboot");
         Set<Hashtag> expectedHashtags = new HashSet<>();
+
         given(articleRepository.getReferenceById(dto.id())).willReturn(article);
         given(userRepository.getReferenceById(dto.userDto().id())).willReturn(dto.userDto().toEntity());
         willDoNothing().given(articleRepository).flush();
@@ -255,14 +250,21 @@ class ArticleServiceTest {
         assertThat(article)
                 .hasFieldOrPropertyWithValue("title", dto.title())
                 .hasFieldOrPropertyWithValue("content", dto.content())
-                .hasFieldOrPropertyWithValue("hashtag", dto.hashtagDtos());
+                .extracting("hashtags", as(InstanceOfAssertFactories.COLLECTION))
+                .hasSize(1)
+                .extracting("hashtagName")
+                .containsExactly("springboot");
+
         then(articleRepository).should().getReferenceById(dto.id());
-        then(userRepository).should().findByEmail(dto.userDto().email());
+        then(userRepository).should().getReferenceById(dto.userDto().id());
+        then(articleRepository).should().flush();
+        then(hashtagService).should(times(2)).deleteHashtagWithoutArticles(any());
+        then(hashtagService).should().parseHashtagNames(dto.content());
+        then(hashtagService).should().findHashtagsByNames(expectedHashtagNames);
     }
 
-    @DisplayName("없는 게시글의 수정 정보를 입력하면, 경고 로그를 찍고 아무 것도 하지 않는다.")
     @Test
-    void givenNonexistentArticleInfo_whenUpdatingArticle_thenLogsWarningAndDoesNothing() {
+    void 없는_게시글의_수정_정보를_입력하면_경고_로그를_찍고_아무_것도_하지_않는다() {
         // Given
         ArticleDto dto = createArticleDto("새 타이틀", "새 내용");
         given(articleRepository.getReferenceById(dto.id())).willThrow(EntityNotFoundException.class);
@@ -274,29 +276,28 @@ class ArticleServiceTest {
         then(articleRepository).should().getReferenceById(dto.id());
     }
 
-    @DisplayName("게시글 작성자가 아닌 사람이 수정 정보를 입력하면, 아무 것도 하지 않는다.")
     @Test
-    void givenModifiedArticleInfoWithDifferentUser_whenUpdatingArticle_thenDoesNothing() {
+    void 게시글_작성자가_아닌_사람이_수정_정보를_입력하면_아무_것도_하지_않는다() {
         // Given
         Long differentArticleId = 22L;
         Article differentArticle = createArticle(differentArticleId);
-        differentArticle.setUser(createUser());
-        ArticleDto dto = createArticleDto("새 타이틀", "새 내용");
+        differentArticle.setUser(createUser("newUser"));
+
+        ArticleDto articleDto = createArticleDto("새 타이틀", "새 내용");
         given(articleRepository.getReferenceById(differentArticleId)).willReturn(differentArticle);
-        given(userRepository.getReferenceById(dto.userDto().id())).willReturn(dto.userDto().toEntity());
+        given(userRepository.getReferenceById(articleDto.userDto().id())).willReturn(articleDto.userDto().toEntity());
 
         // When
-        sut.updateArticle(differentArticleId, dto);
+        sut.updateArticle(differentArticleId, articleDto);
 
         // Then
         then(articleRepository).should().getReferenceById(differentArticleId);
-        then(userRepository).should().getReferenceById(dto.userDto().id());
+        then(userRepository).should().getReferenceById(articleDto.userDto().id());
         then(hashtagService).shouldHaveNoInteractions();
     }
 
-    @DisplayName("게시글의 ID를 입력하면, 게시글을 삭제한다")
     @Test
-    void givenArticleId_whenDeletingArticle_thenDeletesArticle() {
+    void 게시글의_ID_를_입력하면_게시글을_삭제한다() {
         // Given
         Long articleId = 1L;
         String userEmail = "jm@email.com";
@@ -315,9 +316,8 @@ class ArticleServiceTest {
         then(hashtagService).should(times(2)).deleteHashtagWithoutArticles(any());
     }
 
-    @DisplayName("게시글 수를 조회하면, 게시글 수를 반환한다")
     @Test
-    void givenNothing_whenCountingArticles_thenReturnsArticleCount() {
+    void 게시글_수를_조회하면_게시글_수를_반환한다() {
         // Given
         long expected = 0L;
         given(articleRepository.count()).willReturn(expected);
@@ -330,20 +330,18 @@ class ArticleServiceTest {
         then(articleRepository).should().count();
     }
 
-    @DisplayName("해시태그를 조회하면, unique 해시태그 리스트를 반환한다.")
     @Test
-    void givenNothing_whenCalling_thenReturnsHashTags() {
+    void 해시태그를_조회하면_unique_해시태그_리스트를_반환한다() {
         // Given
-        Article article = createArticle();
         List<String> expectedHashtags = List.of("java", "spring", "boot");
-        given(hashtagRepository.findAllHashtagNames()).willReturn(expectedHashtags);
+        given(hashtagService.findAllHashtagNames()).willReturn(expectedHashtags);
 
         // When
         List<String> actualHashtags = sut.getHashtags();
 
         // Then
         assertThat(actualHashtags).isEqualTo(expectedHashtags);
-        then(hashtagRepository).should().findAllHashtagNames();
+        then(hashtagService).should().findAllHashtagNames();
     }
 
 
@@ -369,8 +367,8 @@ class ArticleServiceTest {
                 1L,
                 "jm@email.com",
                 "password",
-                "Jm",
-                "This is Memo",
+                "jm",
+                "memo",
                 LocalDateTime.now(),
                 "jm",
                 LocalDateTime.now(),
@@ -418,7 +416,7 @@ class ArticleServiceTest {
     }
 
     private User createUser(String userEmail) {
-        return User.of(userEmail, "password", "jaime", "memo");
+        return User.of(userEmail, "password", "jm", "memo");
     }
 
 }
