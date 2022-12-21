@@ -119,14 +119,15 @@ public class ArticleService {
         }
     }
 
-    public void deleteArticle(Long articleId, String userEmail) {
+    public void deleteArticle(Long articleId, Long userId) {
         Article article = articleRepository.getReferenceById(articleId);
+        User user = userRepository.getReferenceById(userId);
 
         Set<Long> hashtagIds = article.getHashtags().stream()
                 .map(Hashtag::getId)
                 .collect(toUnmodifiableSet());
 
-        articleRepository.deleteByIdAndUser_Email(articleId, userEmail);
+        articleRepository.deleteByIdAndUser_Id(articleId, userId);
         articleRepository.flush();
 
         hashtagIds.forEach(hashtagService::deleteHashtagWithoutArticles);

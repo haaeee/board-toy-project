@@ -31,7 +31,9 @@ public interface ArticleCommentRepository extends
     @Query("select ac from ArticleComment ac join fetch ac.user join fetch ac.childComments where ac.id = :id")
     Optional<ArticleComment> findWithUserAndChildCommentsById(@Param("id") Long id);
 
-    void deleteByIdAndUser_Email(Long articleCommentId, String email);
+    @Modifying(clearAutomatically = true)
+    @Query("delete from ArticleComment ac where ac.id = :id and ac.user.id = :userId")
+    void deleteByIdAndUser_Id(Long id, Long userId);
 
     @Transactional
     @Modifying(clearAutomatically = true)
