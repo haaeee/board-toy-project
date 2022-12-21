@@ -1,11 +1,14 @@
 package com.example.boardproject.repository;
 
 
+import com.example.boardproject.config.P6spyConfiguration;
 import com.example.boardproject.domain.Article;
 import com.example.boardproject.domain.Hashtag;
 import com.example.boardproject.domain.User;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator.ReplaceUnderscores;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -26,8 +29,9 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("testdb")
-@DisplayName("JPA_연결_테스트")
-@Import(JpaRepositoryTest.TestJpaConfig.class)
+@DisplayName("JPA 연결 테스트")
+@DisplayNameGeneration(ReplaceUnderscores.class)
+@Import({JpaRepositoryTest.TestJpaConfig.class, P6spyConfiguration.class})
 @DataJpaTest
 class JpaRepositoryTest {
 
@@ -46,40 +50,36 @@ class JpaRepositoryTest {
         this.hashtagRepository = hashtagRepository;
     }
 
-    @DisplayName("select_테스트")
     @Test
-    void select_test() {
+    void select_테스트() {
         // given
 
         // when
         List<Article> articles = articleRepository.findAll();
 
         // then
-        assertThat(articles)
-                .isNotNull()
-                .hasSize(117);
+        assertThat(articles).isNotNull()
+                .hasSize(123);
     }
 
-    @DisplayName("insert_테스트")
     @Test
-    void insert_test() {
+    void insert_테스트() {
         // given
         long previousCount = articleRepository.count();
-        long previousCountHashtag = hashtagRepository.count();
 
         User user = userRepository.save(User.of("test@email.com", "pwd", null, null));
         Article article = Article.of(user, "new article", "new content");
+        article.addHashtags(Set.of(Hashtag.of("spring")));
 
         // when
-        article.addHashtag(Hashtag.of("spring"));
+        articleRepository.save(article);
 
         // then
         assertThat(articleRepository.count()).isEqualTo(previousCount + 1);
     }
 
-    @DisplayName("update_테스트")
     @Test
-    void update_test() {
+    void update_테스트() {
         // given
         Article article = articleRepository.findById(1L).orElseThrow();
         Hashtag updatedHashtag = Hashtag.of("springboot");
@@ -96,9 +96,8 @@ class JpaRepositoryTest {
                 .containsExactly(updatedHashtag.getHashtagName());
     }
 
-    @DisplayName("delete_테스트")
     @Test
-    void delete_test() {
+    void delete_테스트() {
         // given
         Article article = articleRepository.findById(1L).orElseThrow();
         long previousArticleCount = articleRepository.count();
@@ -113,9 +112,8 @@ class JpaRepositoryTest {
         assertThat(articleCommentRepository.count()).isEqualTo(previousArticleCommentCount - deletedCommentsSize);
     }
 
-    @DisplayName("[Querydsl] 전체 hashtag 리스트에서 이름만 조회하기")
     @Test
-    void givenNothing_whenQueryingHashtags_thenReturnsHashtagNames() {
+    void Querydsl_전체_hashtag_리스트에서_이름만_조회하기() {
         // Given
 
         // When
@@ -125,13 +123,12 @@ class JpaRepositoryTest {
         assertThat(hashtagNames).hasSize(19);
     }
 
-    @DisplayName("[Querydsl] hashtag로 페이징된 게시글 검색하기")
     @Test
-    void givenHashtagNamesAndPageable_whenQueryingArticles_thenReturnsArticlePage() {
+    void Querydsl_hashtag_로_페이징된_게시글_검색하기() {
         // Given
         List<String> hashtagNames = List.of("blue", "crimson", "fuscia");
         Pageable pageable = PageRequest.of(0, 5, Sort.by(
-                Sort.Order.desc("hashtags.hashtagName"),
+                Sort.Order.desc("hashtags.hashtagName"),  // article Field
                 Sort.Order.asc("title")
         ));
 
@@ -142,7 +139,7 @@ class JpaRepositoryTest {
         assertThat(articlePage.getContent()).hasSize(pageable.getPageSize());
         assertThat(articlePage.getContent().get(0).getTitle()).isEqualTo("Fusce posuere felis sed lacus.");
         assertThat(articlePage.getContent().get(0).getHashtags())
-                .extracting("articleHashtags.hashtag.hashtagName", String.class)
+                .extracting("hashtagName", String.class)
                 .containsExactly("fuscia");
         assertThat(articlePage.getTotalElements()).isEqualTo(17);
         assertThat(articlePage.getTotalPages()).isEqualTo(4);

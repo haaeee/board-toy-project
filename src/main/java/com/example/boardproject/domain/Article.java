@@ -1,5 +1,6 @@
 package com.example.boardproject.domain;
 
+import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
 
 import java.util.Collection;
@@ -39,7 +40,7 @@ public class Article extends AuditingFields {
     private Long id;
 
     @Setter
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = LAZY)
     @JoinColumn(name = "user_id")
     private User user;  // 유저 정보(ID)
 

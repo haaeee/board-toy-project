@@ -16,19 +16,12 @@ public record UserDto(
         String modifiedBy
 ) {
 
-    public static UserDto of(String email, String userPassword, String nickname, String memo) {
-        return new UserDto(null, email, userPassword, nickname, memo, null, null, null, null);
+    public static UserDto of(Long id, String email, String userPassword, String nickname, String memo) {
+        return new UserDto(id, email, userPassword, nickname, memo, null, null, null, null);
     }
 
-    public static UserDto of(Long id,
-                             String email,
-                             String userPassword,
-                             String nickname,
-                             String memo,
-                             LocalDateTime createdAt,
-                             String createdBy,
-                             LocalDateTime modifiedAt,
-                             String modifiedBy) {
+    public static UserDto of(Long id, String email, String userPassword, String nickname, String memo,
+                             LocalDateTime createdAt, String createdBy, LocalDateTime modifiedAt, String modifiedBy) {
         return new UserDto(id, email, userPassword, nickname, memo, createdAt, createdBy, modifiedAt, modifiedBy);
     }
 
