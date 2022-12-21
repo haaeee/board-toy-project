@@ -59,7 +59,7 @@ class JpaRepositoryTest {
 
         // then
         assertThat(articles).isNotNull()
-                .hasSize(117);
+                .hasSize(123);
     }
 
     @Test
@@ -137,7 +137,7 @@ class JpaRepositoryTest {
 
         // Then
         assertThat(articlePage.getContent()).hasSize(pageable.getPageSize());
-        assertThat(articlePage.getContent().get(0).getTitle()).isEqualTo("Aenean sit amet justo.");
+        assertThat(articlePage.getContent().get(0).getTitle()).isEqualTo("Fusce posuere felis sed lacus.");
         assertThat(articlePage.getContent().get(0).getHashtags())
                 .extracting("hashtagName", String.class)
                 .containsExactly("fuscia");
