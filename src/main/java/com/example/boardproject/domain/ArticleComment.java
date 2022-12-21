@@ -24,12 +24,12 @@ public class ArticleComment extends AuditingFields {
     private Long id;
 
     @Setter
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "article_id")
     private Article article;  // 게시글 (id)
 
     @Setter
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user; // 유저 정보 (ID)
 
@@ -43,7 +43,7 @@ public class ArticleComment extends AuditingFields {
 
     @ToString.Exclude
     @OrderBy("createdAt ASC")
-    @OneToMany(mappedBy = "parentCommentId", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "parentCommentId", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<ArticleComment> childComments = new LinkedHashSet<>();
 
     protected ArticleComment() {
