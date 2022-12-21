@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 
 public record UserPrincipal(
+        Long id,
         String username, // email
         String password,
         Collection<? extends GrantedAuthority> authorities,
@@ -19,10 +20,11 @@ public record UserPrincipal(
         String memo
 ) implements UserDetails {
 
-    public static UserPrincipal of(String username, String password, String nickname, String memo) {
+    public static UserPrincipal of(Long userId, String username, String password, String nickname, String memo) {
         Set<RoleType> roleTypes = Set.of(RoleType.USER);
 
         return new UserPrincipal(
+                userId,
                 username,
                 password,
                 roleTypes.stream().map(RoleType::getName)
@@ -36,6 +38,7 @@ public record UserPrincipal(
 
     public static UserPrincipal from(UserDto dto) {
         return UserPrincipal.of(
+                dto.id(),
                 dto.email(),
                 dto.userPassword(),
                 dto.nickname(),
@@ -45,6 +48,7 @@ public record UserPrincipal(
 
     public UserDto toDto() {
         return UserDto.of(
+                id,
                 username,
                 password,
                 nickname,
