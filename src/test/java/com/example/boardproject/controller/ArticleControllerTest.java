@@ -9,6 +9,7 @@ import com.example.boardproject.dto.HashtagDto;
 import com.example.boardproject.dto.UserDto;
 import com.example.boardproject.dto.request.ArticleRequest;
 import com.example.boardproject.dto.response.ArticleResponse;
+import com.example.boardproject.dto.security.UserPrincipal;
 import com.example.boardproject.service.ArticleService;
 import com.example.boardproject.service.PaginationService;
 import com.example.boardproject.util.FormDataEncoder;
@@ -24,6 +25,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
+import org.springframework.security.config.annotation.authentication.configurers.provisioning.UserDetailsManagerConfigurer.UserDetailsBuilder;
 import org.springframework.security.test.context.support.TestExecutionEvent;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -258,7 +260,8 @@ class ArticleControllerTest {
                 .andExpect(model().attribute("formStatus", FormStatus.CREATE));
     }
 
-    @WithUserDetails(value = "test@email.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+//    @WithUserDetails(value = "test@email.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @WithMockCustomUser
     @DisplayName("[view][POST] 새 게시글 등록 - 정상 호출")
     @Test
     void givenNewArticleInfo_whenRequesting_thenSavesNewArticle() throws Exception {
@@ -301,7 +304,8 @@ class ArticleControllerTest {
 
     // setupBefore = TestExecutionEvent.TEST_EXECUTION: 실행전에 setup 을 맞춘다.
     // userDetailsServiceBeanName = "userDetailsService" 빈을 명시해줘도 된다.
-    @WithUserDetails(value = "test@email.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+//    @WithUserDetails(value = "test@email.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @WithMockCustomUser
     @DisplayName("[view][POST] 게시글 수정 - 정상 호출")
     @Test
     void givenUpdatedArticleInfo_whenRequesting_thenUpdatesNewArticle() throws Exception {
@@ -323,14 +327,14 @@ class ArticleControllerTest {
         then(articleService).should().updateArticle(eq(articleId), any(ArticleDto.class));
     }
 
-    @WithUserDetails(value = "test@email.com", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @WithMockCustomUser
     @DisplayName("[view][POST] 게시글 삭제 - 정상 호출")
     @Test
     void givenArticleIdToDelete_whenRequesting_thenDeletesArticle() throws Exception {
         // Given
         long articleId = 1L;
-        String userEmail = "test@email.com";
-        willDoNothing().given(articleService).deleteArticle(articleId, userEmail);
+        long userId = 1L;
+        willDoNothing().given(articleService).deleteArticle(articleId, userId);
 
         // When & Then
         mvc.perform(
@@ -341,7 +345,7 @@ class ArticleControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/articles"))
                 .andExpect(redirectedUrl("/articles"));
-        then(articleService).should().deleteArticle(articleId, userEmail);
+        then(articleService).should().deleteArticle(articleId, userId);
     }
 
     private ArticleDto createArticleDto() {
