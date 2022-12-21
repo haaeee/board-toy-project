@@ -36,7 +36,7 @@ public interface ArticleRepository extends
 
     Page<Article> findByUser_NicknameContaining(String nickname, Pageable pageable);
 
-    void deleteByIdAndUser_Email(Long articleId, String email);
+    void deleteByIdAndUser_Id(Long articleId, Long userId);
 
     @Override
     default void customize(QuerydslBindings bindings, QArticle root) {

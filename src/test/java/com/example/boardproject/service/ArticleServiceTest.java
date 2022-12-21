@@ -300,18 +300,20 @@ class ArticleServiceTest {
     void 게시글의_ID_를_입력하면_게시글을_삭제한다() {
         // Given
         Long articleId = 1L;
-        String userEmail = "jm@email.com";
+        String userEmail = "test@email.com";
+        Long userId = 1L;
         given(articleRepository.getReferenceById(articleId)).willReturn(createArticle());
-        willDoNothing().given(articleRepository).deleteByIdAndUser_Email(articleId, userEmail);
+        given(userRepository.getReferenceById(userId)).willReturn(createUser(userEmail));
+        willDoNothing().given(articleRepository).deleteByIdAndUser_Id(articleId, userId);
         willDoNothing().given(articleRepository).flush();
         willDoNothing().given(hashtagService).deleteHashtagWithoutArticles(any());
 
         // When
-        sut.deleteArticle(1L, userEmail);
+        sut.deleteArticle(1L, userId);
 
         // Then
         then(articleRepository).should().getReferenceById(articleId);
-        then(articleRepository).should().deleteByIdAndUser_Email(articleId, userEmail);
+        then(articleRepository).should().deleteByIdAndUser_Id(articleId, userId);
         then(articleRepository).should().flush();
         then(hashtagService).should(times(2)).deleteHashtagWithoutArticles(any());
     }
@@ -415,8 +417,11 @@ class ArticleServiceTest {
         return createUser("jm@email.com");
     }
 
+
     private User createUser(String userEmail) {
-        return User.of(userEmail, "password", "jm", "memo");
+        User user = User.of(userEmail, "password", "jm", "memo");
+        ReflectionTestUtils.setField(user, "id", 1L);
+        return user;
     }
 
 }

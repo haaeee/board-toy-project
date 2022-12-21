@@ -126,7 +126,7 @@ class JpaRepositoryTest {
         articleCommentRepository.flush();
 
         // Then
-        assertThat(articleCommentRepository.findById(1L).get())
+        assertThat(articleCommentRepository.findById(1L)).get()
                 .hasFieldOrPropertyWithValue("parentCommentId", null)
                 .extracting("childComments", InstanceOfAssertFactories.COLLECTION)
                 .hasSize(5);
@@ -140,10 +140,10 @@ class JpaRepositoryTest {
         Optional<ArticleComment> parentComment = articleCommentRepository.findWithUserAndChildCommentsById(1L);
 
         // Then
-        assertThat(parentComment.get())
+        assertThat(parentComment).get()
                 .hasFieldOrPropertyWithValue("parentCommentId", null)
                 .extracting("childComments", InstanceOfAssertFactories.COLLECTION)
-                .hasSize(4);
+                    .hasSize(4);
     }
 
     @Test
@@ -156,14 +156,11 @@ class JpaRepositoryTest {
 
         // When
         articleCommentRepository.deleteByChildCommentId(childIds);
-        articleCommentRepository.deleteByIdAndUser_Email(1L, "jm@email.com");
+        articleCommentRepository.deleteByIdAndUser_Id(1L, 1L);
 
         // Then
         assertThat(articleCommentRepository.count()).isEqualTo(previousArticleComment - 5);
     }
-
-
-
 
     @Test
     void Querydsl_전체_hashtag_리스트에서_이름만_조회하기() {
