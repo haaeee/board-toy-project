@@ -127,7 +127,7 @@ public class ArticleController {
             @PathVariable Long articleId,
             @AuthenticationPrincipal UserPrincipal userPrincipal
     ) {  // SecurityContextHolder.getContext().getAuthentication()
-        articleService.deleteArticle(articleId, userPrincipal.getUsername());
+        articleService.deleteArticle(articleId, userPrincipal.id());
 
         return "redirect:/articles";
     }
