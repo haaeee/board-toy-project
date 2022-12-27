@@ -35,6 +35,7 @@ dependencies {
     annotationProcessor 'com.github.therapi:therapi-runtime-javadoc-scribe:0.15.0'
 
     runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
     runtimeOnly 'mysql:mysql-connector-java'
 
     // p6spy
