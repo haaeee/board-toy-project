@@ -2,12 +2,11 @@ package com.example.boardproject.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Map;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import java.util.Map;
 
 @TestComponent
 public class FormDataEncoder {

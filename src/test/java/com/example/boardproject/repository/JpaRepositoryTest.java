@@ -1,11 +1,15 @@
 package com.example.boardproject.repository;
 
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.example.boardproject.config.P6spyConfiguration;
 import com.example.boardproject.domain.Article;
 import com.example.boardproject.domain.ArticleComment;
 import com.example.boardproject.domain.Hashtag;
 import com.example.boardproject.domain.User;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.assertj.core.api.InstanceOfAssertFactories;
@@ -25,11 +29,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.test.context.ActiveProfiles;
-
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("testdb")
 @DisplayName("JPA 연결 테스트")

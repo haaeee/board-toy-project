@@ -1,10 +1,9 @@
 package com.example.boardproject.dto;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toUnmodifiableSet;
 
 import com.example.boardproject.domain.Article;
 import com.example.boardproject.domain.User;
-
 import java.time.LocalDateTime;
 import java.util.Set;
 

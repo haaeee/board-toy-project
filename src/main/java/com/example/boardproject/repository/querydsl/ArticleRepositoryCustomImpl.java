@@ -5,13 +5,12 @@ import com.example.boardproject.domain.QArticle;
 import com.example.boardproject.domain.QHashtag;
 import com.querydsl.jpa.JPQLQuery;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
-
-import java.util.List;
 
 public class ArticleRepositoryCustomImpl extends QuerydslRepositorySupport implements ArticleRepositoryCustom {
 

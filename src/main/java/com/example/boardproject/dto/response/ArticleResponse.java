@@ -1,9 +1,8 @@
 package com.example.boardproject.dto.response;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toUnmodifiableSet;
 
 import com.example.boardproject.dto.ArticleDto;
-
 import com.example.boardproject.dto.HashtagDto;
 import java.time.LocalDateTime;
 import java.util.Set;

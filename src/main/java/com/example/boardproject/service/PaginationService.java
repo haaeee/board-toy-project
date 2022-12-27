@@ -1,9 +1,8 @@
 package com.example.boardproject.service;
 
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.stream.IntStream;
+import org.springframework.stereotype.Service;
 
 @Service
 public class PaginationService {
