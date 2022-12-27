@@ -57,7 +57,7 @@ public class ArticleController {
                 articleService.getArticleWithComments(articleId));
 
         model.addAttribute("article", article);
-        model.addAttribute("articleComments", article.articleCommentResponse());
+        model.addAttribute("articleComments", article.articleCommentsResponse());
         model.addAttribute("totalCount", articleService.getArticleCount());
         model.addAttribute("searchTypeHashtag", SearchType.HASHTAG);
 
