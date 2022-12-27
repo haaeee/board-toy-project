@@ -3,12 +3,14 @@ package com.example.boardproject.dto.security;
 import com.example.boardproject.domain.constant.RoleType;
 import com.example.boardproject.dto.UserDto;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 
 public record UserPrincipal(
@@ -18,10 +20,17 @@ public record UserPrincipal(
         String password,
         Collection<? extends GrantedAuthority> authorities,
         String nickname,
-        String memo
-) implements UserDetails {
+        String memo,
+        Map<String, Object> oAuth2Attributes
+) implements UserDetails, OAuth2User {
 
     public static UserPrincipal of(Long userId, String username, String password, String nickname, String memo) {
+        return UserPrincipal.of(userId, username, password, nickname, memo, Map.of());
+    }
+
+    public static UserPrincipal of(Long userId, String username, String password, String nickname, String memo,
+                                   Map<String, Object> oAuth2Attributes) {
+
         Set<RoleType> roleTypes = Set.of(RoleType.USER);
 
         return new UserPrincipal(
@@ -33,7 +42,8 @@ public record UserPrincipal(
                         .collect(Collectors.toUnmodifiableSet())
                 ,
                 nickname,
-                memo
+                memo,
+                oAuth2Attributes
         );
     }
 
@@ -93,4 +103,14 @@ public record UserPrincipal(
         return true;
     }
 
+    // == OAuth ==
+    @Override
+    public Map<String, Object> getAttributes() {
+        return oAuth2Attributes;
+    }
+
+    @Override
+    public String getName() {
+        return username;
+    }
 }
