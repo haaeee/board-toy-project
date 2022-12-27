@@ -29,6 +29,11 @@ dependencies {
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
+    // swagger
+    implementation 'org.springdoc:springdoc-openapi-ui:1.6.12'
+    implementation 'org.springdoc:springdoc-openapi-data-rest:1.6.12'
+    annotationProcessor 'com.github.therapi:therapi-runtime-javadoc-scribe:0.15.0'
+
     runtimeOnly 'com.h2database:h2'
     runtimeOnly 'mysql:mysql-connector-java'
 
