@@ -7,6 +7,7 @@ import com.example.boardproject.dto.ArticleCommentDto;
 import com.example.boardproject.repository.ArticleCommentRepository;
 import com.example.boardproject.repository.ArticleRepository;
 import com.example.boardproject.repository.UserRepository;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -37,7 +38,14 @@ public class ArticleCommentService {
         try {
             Article article = articleRepository.getReferenceById(dto.articleId());
             User user = userRepository.getReferenceById(dto.userDto().id());
-            articleCommentRepository.save(dto.toEntity(article, user));
+            ArticleComment articleComment = dto.toEntity(article, user);
+
+            if (dto.hasParentComment()) {
+                ArticleComment parentComment = articleCommentRepository.getReferenceById(dto.parentCommentId());
+                parentComment.addChildComment(articleComment);
+            } else {
+                articleCommentRepository.save(articleComment);
+            }
         } catch (EntityNotFoundException e) {
             log.warn("댓글 저장 실패. 댓글 작성에 필요한 정보를 찾을 수 없습니다. - {}", e.getLocalizedMessage());
         }
