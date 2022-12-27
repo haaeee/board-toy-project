@@ -14,7 +14,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Getter
-@ToString
+@ToString(callSuper = true)
 @Table(name = "users", indexes = {
         @Index(columnList = "email", unique = true),
         @Index(columnList = "nickname", unique = true),
@@ -47,15 +47,21 @@ public class User extends AuditingFields {
     protected User() {
     }
 
-    private User(String email, String userPassword, String nickname, String memo) {
+    private User(String email, String userPassword, String nickname, String memo, String createdBy) {
         this.email = email;
         this.userPassword = userPassword;
         this.nickname = nickname;
         this.memo = memo;
+        this.createdBy = createdBy;
+        this.modifiedBy = createdBy;
     }
 
     public static User of(String email, String userPassword, String nickname, String memo) {
-        return new User(email, userPassword, nickname, memo);
+        return new User(email, userPassword, nickname, memo, null);
+    }
+
+    public static User of(String email, String userPassword, String nickname, String memo, String createdBy) {
+        return new User(email, userPassword, nickname, memo, createdBy);
     }
 
     @Override
