@@ -1,7 +1,6 @@
 package com.example.boardproject.dto;
 
 import com.example.boardproject.domain.User;
-
 import java.time.LocalDateTime;
 
 public record UserDto(

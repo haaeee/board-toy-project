@@ -1,5 +1,13 @@
 package com.example.boardproject.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.any;
+import static org.mockito.BDDMockito.anyLong;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.never;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willDoNothing;
+
 import com.example.boardproject.domain.Article;
 import com.example.boardproject.domain.ArticleComment;
 import com.example.boardproject.domain.Hashtag;
@@ -9,7 +17,10 @@ import com.example.boardproject.dto.UserDto;
 import com.example.boardproject.repository.ArticleCommentRepository;
 import com.example.boardproject.repository.ArticleRepository;
 import com.example.boardproject.repository.UserRepository;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
+import javax.persistence.EntityNotFoundException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -19,14 +30,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import javax.persistence.EntityNotFoundException;
-import java.time.LocalDateTime;
-import java.util.List;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.*;
 
 
 @DisplayName("비즈니스 로직 - 댓글")

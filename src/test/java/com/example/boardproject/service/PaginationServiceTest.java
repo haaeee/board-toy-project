@@ -1,5 +1,10 @@
 package com.example.boardproject.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+
+import java.util.List;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -7,12 +12,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.List;
-import java.util.stream.Stream;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 /***
  * 스프링 부트 테스트 경량화: NONE, classes: 설정 클래스 default (@SpringBootApplication) 임의로 지정할 수 있다.
