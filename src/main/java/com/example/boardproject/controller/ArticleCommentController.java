@@ -33,7 +33,7 @@ public class ArticleCommentController {
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             Long articleId
     ) {
-        articleCommentService.deleteArticleComment(commentId, userPrincipal.getUsername());
+        articleCommentService.deleteArticleComment(commentId, userPrincipal.getId());
 
         return "redirect:/articles/" + articleId;
     }

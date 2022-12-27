@@ -57,7 +57,7 @@ public class ArticleController {
                 articleService.getArticleWithComments(articleId));
 
         model.addAttribute("article", article);
-        model.addAttribute("articleComments", article.articleCommentResponse());
+        model.addAttribute("articleComments", article.articleCommentsResponse());
         model.addAttribute("totalCount", articleService.getArticleCount());
         model.addAttribute("searchTypeHashtag", SearchType.HASHTAG);
 
@@ -127,7 +127,7 @@ public class ArticleController {
             @PathVariable Long articleId,
             @AuthenticationPrincipal UserPrincipal userPrincipal
     ) {  // SecurityContextHolder.getContext().getAuthentication()
-        articleService.deleteArticle(articleId, userPrincipal.getUsername());
+        articleService.deleteArticle(articleId, userPrincipal.id());
 
         return "redirect:/articles";
     }

@@ -6,7 +6,6 @@ import com.example.boardproject.repository.querydsl.ArticleRepositoryCustom;
 import com.querydsl.core.types.dsl.DateTimeExpression;
 import com.querydsl.core.types.dsl.StringExpression;
 import java.util.Optional;
-import java.util.stream.LongStream;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -36,7 +35,7 @@ public interface ArticleRepository extends
 
     Page<Article> findByUser_NicknameContaining(String nickname, Pageable pageable);
 
-    void deleteByIdAndUser_Email(Long articleId, String email);
+    void deleteByIdAndUser_Id(Long articleId, Long userId);
 
     @Override
     default void customize(QuerydslBindings bindings, QArticle root) {

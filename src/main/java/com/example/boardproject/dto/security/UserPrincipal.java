@@ -2,16 +2,17 @@ package com.example.boardproject.dto.security;
 
 import com.example.boardproject.domain.constant.RoleType;
 import com.example.boardproject.dto.UserDto;
+import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 
 public record UserPrincipal(
+        @Getter
         Long id,
         String username, // email
         String password,

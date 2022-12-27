@@ -1,5 +1,15 @@
 package com.example.boardproject.service;
 
+import static java.util.stream.Collectors.toUnmodifiableSet;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.BDDAssertions.as;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.times;
+import static org.mockito.BDDMockito.willDoNothing;
+
 import com.example.boardproject.domain.Article;
 import com.example.boardproject.domain.Hashtag;
 import com.example.boardproject.domain.User;
@@ -11,8 +21,12 @@ import com.example.boardproject.dto.UserDto;
 import com.example.boardproject.repository.ArticleRepository;
 import com.example.boardproject.repository.HashtagRepository;
 import com.example.boardproject.repository.UserRepository;
+import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import javax.persistence.EntityNotFoundException;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -26,18 +40,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import javax.persistence.EntityNotFoundException;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
-import static java.util.stream.Collectors.toUnmodifiableSet;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.assertj.core.api.BDDAssertions.as;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.*;
 
 @DisplayName("비즈니스 로직 - 게시글")
 @DisplayNameGeneration(ReplaceUnderscores.class)
@@ -300,18 +302,20 @@ class ArticleServiceTest {
     void 게시글의_ID_를_입력하면_게시글을_삭제한다() {
         // Given
         Long articleId = 1L;
-        String userEmail = "jm@email.com";
+        String userEmail = "test@email.com";
+        Long userId = 1L;
         given(articleRepository.getReferenceById(articleId)).willReturn(createArticle());
-        willDoNothing().given(articleRepository).deleteByIdAndUser_Email(articleId, userEmail);
+        given(userRepository.getReferenceById(userId)).willReturn(createUser(userEmail));
+        willDoNothing().given(articleRepository).deleteByIdAndUser_Id(articleId, userId);
         willDoNothing().given(articleRepository).flush();
         willDoNothing().given(hashtagService).deleteHashtagWithoutArticles(any());
 
         // When
-        sut.deleteArticle(1L, userEmail);
+        sut.deleteArticle(1L, userId);
 
         // Then
         then(articleRepository).should().getReferenceById(articleId);
-        then(articleRepository).should().deleteByIdAndUser_Email(articleId, userEmail);
+        then(articleRepository).should().deleteByIdAndUser_Id(articleId, userId);
         then(articleRepository).should().flush();
         then(hashtagService).should(times(2)).deleteHashtagWithoutArticles(any());
     }
@@ -415,8 +419,11 @@ class ArticleServiceTest {
         return createUser("jm@email.com");
     }
 
+
     private User createUser(String userEmail) {
-        return User.of(userEmail, "password", "jm", "memo");
+        User user = User.of(userEmail, "password", "jm", "memo");
+        ReflectionTestUtils.setField(user, "id", 1L);
+        return user;
     }
 
 }

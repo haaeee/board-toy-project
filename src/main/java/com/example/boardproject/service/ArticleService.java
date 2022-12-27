@@ -1,6 +1,6 @@
 package com.example.boardproject.service;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toUnmodifiableSet;
 
 import com.example.boardproject.domain.Article;
 import com.example.boardproject.domain.Hashtag;
@@ -12,18 +12,15 @@ import com.example.boardproject.repository.ArticleRepository;
 import com.example.boardproject.repository.HashtagRepository;
 import com.example.boardproject.repository.UserRepository;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
+import javax.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.EntityNotFoundException;
-import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @Transactional
@@ -119,14 +116,15 @@ public class ArticleService {
         }
     }
 
-    public void deleteArticle(Long articleId, String userEmail) {
+    public void deleteArticle(Long articleId, Long userId) {
         Article article = articleRepository.getReferenceById(articleId);
+        User user = userRepository.getReferenceById(userId);
 
         Set<Long> hashtagIds = article.getHashtags().stream()
                 .map(Hashtag::getId)
                 .collect(toUnmodifiableSet());
 
-        articleRepository.deleteByIdAndUser_Email(articleId, userEmail);
+        articleRepository.deleteByIdAndUser_Id(articleId, userId);
         articleRepository.flush();
 
         hashtagIds.forEach(hashtagService::deleteHashtagWithoutArticles);

@@ -1,11 +1,18 @@
 package com.example.boardproject.repository;
 
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.example.boardproject.config.P6spyConfiguration;
 import com.example.boardproject.domain.Article;
+import com.example.boardproject.domain.ArticleComment;
 import com.example.boardproject.domain.Hashtag;
 import com.example.boardproject.domain.User;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator.ReplaceUnderscores;
@@ -22,11 +29,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.test.context.ActiveProfiles;
-
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("testdb")
 @DisplayName("JPA 연결 테스트")
@@ -113,6 +115,53 @@ class JpaRepositoryTest {
     }
 
     @Test
+    void 댓글에_대댓글_insert_테스트() {
+        // Given
+        ArticleComment parentComment = articleCommentRepository.findWithUserAndChildCommentsById(1L).get();
+        ArticleComment childComment = ArticleComment.of(parentComment.getArticle(), parentComment.getUser(), "대댓글");
+
+        // When
+        parentComment.addChildComment(childComment);
+        articleCommentRepository.flush();
+
+        // Then
+        assertThat(articleCommentRepository.findById(1L)).get()
+                .hasFieldOrPropertyWithValue("parentCommentId", null)
+                .extracting("childComments", InstanceOfAssertFactories.COLLECTION)
+                .hasSize(5);
+    }
+
+    @Test
+    void 대댓글_조회_테스트() {
+        // Given
+
+        // When
+        Optional<ArticleComment> parentComment = articleCommentRepository.findWithUserAndChildCommentsById(1L);
+
+        // Then
+        assertThat(parentComment).get()
+                .hasFieldOrPropertyWithValue("parentCommentId", null)
+                .extracting("childComments", InstanceOfAssertFactories.COLLECTION)
+                    .hasSize(4);
+    }
+
+    @Test
+    void 댓글_삭제와_대댓글_전체_연동_삭제_테스트____댓글_ID_유저_ID() {
+        // Given
+        long previousArticleComment = articleCommentRepository.count();
+        Set<Long> childIds = articleCommentRepository.findById(1L).get().getChildComments().stream()
+                .map(ArticleComment::getId).collect(
+                        Collectors.toUnmodifiableSet());
+
+        // When
+        articleCommentRepository.deleteByChildCommentId(childIds);
+        articleCommentRepository.deleteByIdAndUser_Id(1L, 1L);
+
+        // Then
+        assertThat(articleCommentRepository.count()).isEqualTo(previousArticleComment - 5);
+    }
+
+    @Test
     void Querydsl_전체_hashtag_리스트에서_이름만_조회하기() {
         // Given
 
@@ -144,6 +193,7 @@ class JpaRepositoryTest {
         assertThat(articlePage.getTotalElements()).isEqualTo(17);
         assertThat(articlePage.getTotalPages()).isEqualTo(4);
     }
+
 
     @EnableJpaAuditing
     @TestConfiguration
