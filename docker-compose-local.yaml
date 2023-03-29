@@ -5,11 +5,12 @@ services:
     build:
       dockerfile: Dockerfile
       context: ./database
-    image: chungjm0711/board-service-database
+    image: mariadb:latest
     environment:
-      - MYSQL_DATABASE=board_db
-      - MYSQL_ROOT_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - TZ=Asia/Seoul
     volumes:
       - ./database/config:/etc/mysql/conf.d
     ports:
-      - "3306:3306"
+      - ${DB_PORT}:3306

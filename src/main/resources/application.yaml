@@ -70,7 +70,7 @@ spring:
 
   datasource:
     url: ${JAWSDB_URL}
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: org.mariadb.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: create

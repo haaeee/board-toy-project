@@ -31,7 +31,7 @@ Spring Boot
 배포
 
 * Heroku
-* https://board-jaime.herokuapp.com
+* https://port-0-board-toy-project-20z52flc6cv4c0.gksl2.cloudtype.app/
 
 ## 개선 사항
 
